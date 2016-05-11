@@ -66,7 +66,7 @@ class DepartmentsController < ApplicationController
     def set_department
       @department = Department.where(id: params[:id]).first
       notice = 'The department searched could not be found.'
-      redirect_to root_url, notice: notice
+      redirect_to root_url, notice: notice if @department.nil?
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
