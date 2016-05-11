@@ -1,0 +1,25 @@
+.row
+  .column.small-12
+    %nav.top-bar
+      .top-bar-title
+        %span{data:{'responsive-toggle': 'responsive-menu', 'hide-for': 'medium'}}
+          %button.menu-icon.dark{type: 'button', 'data-toggle': true}
+        %strong Textile.Co
+      #responsive-menu
+        .top-bar-left
+          %ul.menu
+            %li
+              %a{href: '#'} Assistance
+            %li
+              %a{:href => '#'} Timesheet Errors
+        .top-bar-right
+          %ul.menu
+            %li{class: class_by_fullpath('active',request.fullpath, 
+              ['timelogs', 'timelog_errors'])}
+              = link_to 'My Timesheets', '#'
+            %li
+              %a{href: '#'} My Profile
+            %li
+              = link_to 'Sign Out', '#', method: :delete
+  .column.small-12
+    = render './alert_warning'
