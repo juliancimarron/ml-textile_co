@@ -1,0 +1,31 @@
+= form_for @timelog do |f|
+  - if @timelog.errors.any?
+    #error_explanation
+      %h2= "#{pluralize(@timelog.errors.count, "error")} prohibited this timelog from being saved:"
+      %ul
+        - @timelog.errors.full_messages.each do |msg|
+          %li= msg
+
+  .field
+    = f.label :employee
+    = f.text_field :employee
+  .field
+    = f.label :log_date
+    = f.date_select :log_date
+  .field
+    = f.label :arrive_datetime
+    = f.datetime_select :arrive_datetime
+  .field
+    = f.label :leave_datetime
+    = f.datetime_select :leave_datetime
+  .field
+    = f.label :claim_arrive_datetime
+    = f.datetime_select :claim_arrive_datetime
+  .field
+    = f.label :claim_leave_datetime
+    = f.datetime_select :claim_leave_datetime
+  .field
+    = f.label :claim_status
+    = f.text_field :claim_status
+  .actions
+    = f.submit 'Save'

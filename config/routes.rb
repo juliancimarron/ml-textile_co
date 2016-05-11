@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
   devise_for :employees
 
+  resources :timelogs
   resources :employees
   resources :departments
 

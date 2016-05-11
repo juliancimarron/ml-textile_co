@@ -1,0 +1,27 @@
+%p#notice= notice
+
+%p
+  %b Employee:
+  = @timelog.employee
+%p
+  %b Log date:
+  = @timelog.log_date
+%p
+  %b Arrive datetime:
+  = @timelog.arrive_datetime
+%p
+  %b Leave datetime:
+  = @timelog.leave_datetime
+%p
+  %b Claim arrive datetime:
+  = @timelog.claim_arrive_datetime
+%p
+  %b Claim leave datetime:
+  = @timelog.claim_leave_datetime
+%p
+  %b Claim status:
+  = @timelog.claim_status
+
+= link_to 'Edit', edit_timelog_path(@timelog)
+\|
+= link_to 'Back', timelogs_path
