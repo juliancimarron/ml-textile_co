@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe "employees/edit", type: :view do
+RSpec.xdescribe "employees/edit", type: :view do
   before(:each) do
     @employee = assign(:employee, Employee.create!(
       :employee_id => "MyString",
