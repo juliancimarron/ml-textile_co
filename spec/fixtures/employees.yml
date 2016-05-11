@@ -1,0 +1,18 @@
+john:
+  first_name: 'John'
+  last_name: 'Smith'
+  department: sales
+  encrypted_password: <%= Employee.new.send( :password_digest, '123456' ) %>
+
+lisa:
+  first_name: 'Lisa'
+  last_name: 'Mendez'
+  department: management
+  encrypted_password: <%= Employee.new.send( :password_digest, '123456' ) %>
+
+julian:
+  first_name: 'Julian'
+  last_name: 'Julian'
+  department: development
+  encrypted_password: <%= Employee.new.send( :password_digest, '123456' ) %>
+  admin: 'true'
