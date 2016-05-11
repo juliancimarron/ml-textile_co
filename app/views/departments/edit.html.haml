@@ -1,7 +1,10 @@
-%h1 Editing department
+= render './top_menu'
+.row
+  .column.medium-4.medium-centered
+    %h2.page-title.text-centered Editing department
 
-= render 'form'
+    = render 'form'
 
-= link_to 'Show', @department
-\|
-= link_to 'Back', departments_path
+    = link_to 'Show', @department
+    \|
+    = link_to 'Back', departments_path

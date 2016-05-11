@@ -64,7 +64,9 @@ class DepartmentsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_department
-      @department = Department.find(params[:id])
+      @department = Department.where(id: params[:id]).first
+      notice = 'The department searched could not be found.'
+      redirect_to root_url, notice: notice
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

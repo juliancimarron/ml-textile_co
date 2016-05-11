@@ -1,0 +1,8 @@
+sales:
+  name: 'Sales'
+
+development:
+  name: 'Development'
+
+management:
+  name: 'Management'

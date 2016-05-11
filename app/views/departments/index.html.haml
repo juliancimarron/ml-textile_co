@@ -1,44 +1,24 @@
 = render './top_menu'
-/ #timelogs_index
-/   .row
-/     .column.small-12
-/       %h2.page-title.text-center Timesheet Review
-/     .column.small-8.small-offset-2.medium-4.medium-offset-4.end
-/       %p
-/         %strong Name:
-/         = current_employee.full_name
-/       %p
-/         = form_for :timelogs, method: :get do |f|
-/           %strong Pay Period:
-/           = f.select :timesheet_id, @timesheet_ids, selected: @current_timesheet.id
-/           = f.submit 'Submit', class: 'button'
-/     .column.large-12
-/       %p
-/         %strong Time Reported:
-/         = "#{@current_timesheet.logged_hrs} hours, #{@current_timesheet.logged_min} minutes"
-/       %br/
-/       %table
-/         %thead
-/           %th Date
-/           %th Arrival
-/           %th Departure
-/           %th Hours
-/           %th Minutes
-/           %th Status
-/           %th Actions
-/         %tbody
-/           - if @proc_timelogs.empty?
-/             %tr
-/               %td{colspan: 7} There is no data for this period.
-/           - else
-/             - @proc_timelogs.each do |timelog|
-/               %tr
-/                 %td= timelog[:log_date]
-/                 %td= timelog[:arrive_time]
-/                 %td= timelog[:leave_time]
-/                 %td= timelog[:hours]
-/                 %td= timelog[:minutes]
-/                 %td= timelog[:status]
-/                 %td
-/                   -if timelog[:action].any?
-/                     = link_to(timelog[:action][:text], timelog[:action][:path])
+.row
+  .column.medium-4.medium-centered
+    %h2.page-title.text-centered Departments
+
+    %table
+      %thead
+        %tr
+          %th Name
+          %th
+          %th
+          %th
+
+      %tbody
+        - @departments.each do |department|
+          %tr
+            %td= department.name
+            %td= link_to 'Show', department
+            %td= link_to 'Edit', edit_department_path(department)
+            %td= link_to 'Destroy', department, :method => :delete, :data => { :confirm => 'Are you sure?' }
+
+    %br
+
+    = link_to 'New Department', new_department_path

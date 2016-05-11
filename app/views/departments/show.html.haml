@@ -1,9 +1,12 @@
-%p#notice= notice
+= render './top_menu'
+.row
+  .column.medium-4.medium-centered
+    %h2.page-title.text-centered Department
 
-%p
-  %b Name:
-  = @department.name
+    %p
+      %b Name:
+      = @department.name
 
-= link_to 'Edit', edit_department_path(@department)
-\|
-= link_to 'Back', departments_path
+    = link_to 'Edit', edit_department_path(@department)
+    \|
+    = link_to 'Back', departments_path

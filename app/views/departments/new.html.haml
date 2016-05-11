@@ -1,5 +1,8 @@
-%h1 New department
+= render './top_menu'
+.row
+  .column.medium-4.medium-centered
+    %h2.page-title.text-centered New Department
 
-= render 'form'
+    = render 'form'
 
-= link_to 'Back', departments_path
+    = link_to 'Back', departments_path
