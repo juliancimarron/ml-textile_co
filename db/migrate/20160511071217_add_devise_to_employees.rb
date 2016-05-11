@@ -2,7 +2,7 @@ class AddDeviseToEmployees < ActiveRecord::Migration
   def self.up
     change_table :employees do |t|
       ## Database authenticatable
-      t.string :email,              null: false, default: ""
+      # t.string :email,              null: false, default: ""
       t.string :encrypted_password, null: false, default: ""
 
       ## Recoverable
@@ -35,7 +35,7 @@ class AddDeviseToEmployees < ActiveRecord::Migration
       # t.timestamps null: false
     end
 
-    add_index :employees, :email,                unique: true
+    # add_index :employees, :email,                unique: true
     add_index :employees, :reset_password_token, unique: true
     # add_index :employees, :confirmation_token,   unique: true
     # add_index :employees, :unlock_token,         unique: true
