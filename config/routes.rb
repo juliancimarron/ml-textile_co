@@ -6,9 +6,10 @@ Rails.application.routes.draw do
 
   devise_for :employees
 
-  resources :timelogs
-  resources :employees
   resources :departments
+  resources :employees
+  resources :timelogs
+  resources :timesheets
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'

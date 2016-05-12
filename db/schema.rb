@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160511095447) do
+ActiveRecord::Schema.define(version: 20160512052639) do
 
   create_table "departments", force: :cascade do |t|
     t.string   "name"
@@ -53,5 +53,19 @@ ActiveRecord::Schema.define(version: 20160511095447) do
   end
 
   add_index "timelogs", ["employee_id"], name: "index_timelogs_on_employee_id"
+
+  create_table "timesheets", force: :cascade do |t|
+    t.integer  "employee_id"
+    t.date     "period_start_date"
+    t.date     "period_end_date"
+    t.integer  "logged_hrs"
+    t.integer  "logged_min"
+    t.date     "pay_date"
+    t.boolean  "approved"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "timesheets", ["employee_id"], name: "index_timesheets_on_employee_id"
 
 end
