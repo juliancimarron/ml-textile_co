@@ -1,0 +1,8 @@
+john:
+  employee: john
+  log_date: <%= Time.now.to_date %>
+  arrive_datetime: <%= DateTime.parse '8:10 am' %>
+  leave_datetime: <%= DateTime.parse '5:00 pm' %>
+  claim_arrive_datetime: <%= DateTime.parse '7:30 am' %>
+  claim_leave_datetime: <%= DateTime.parse '5:30 pm' %>
+  claim_status: 'pending'
