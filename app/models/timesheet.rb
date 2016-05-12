@@ -57,4 +57,11 @@ class Timesheet < ActiveRecord::Base
       errors.add(:pay_date, "The Pay Date cannot happen before the Period End Date.")
     end
   end
+
+  def self.print_timesheet_period(record) 
+    record.period_start_date.strftime('%d/%b/%Y') +
+    ' –– ' +
+    record.period_end_date.strftime('%d/%b/%Y')
+  end
+
 end
