@@ -32,4 +32,18 @@ RSpec.shared_context "model_attributes" do
   end
   let(:timelog_invalid_attributes) { {employee_id: ''} }
 
+  # Timesheet
+  time = Time.now
+  date = Date.new(time.year, time.month, 1)
+  let(:timesheet_valid_attributes) do
+    {
+      employee: Employee.first,
+      period_start_date: date,
+      period_end_date: Date.new(date.year, date.month, -1),
+      logged_hrs: 180,
+      logged_min: 10,
+      pay_date: Date.new(date.year, date.month + 1, 7)
+    }
+  end
+
 end
