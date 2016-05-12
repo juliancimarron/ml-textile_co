@@ -20,6 +20,6 @@
             %li
               %a{href: '#'} My Profile
             %li
-              = link_to 'Sign Out', '#', method: :delete
+              = link_to 'Sign Out', destroy_employee_session_path, method: :delete
   .column.small-12
     = render './alert_warning'
