@@ -1,8 +1,17 @@
 {
-	"folders":
-	[
-		{
-			"path": "."
-		}
-	]
+  "folders":
+  [
+    {
+      "file_exclude_patterns":
+      [
+        "sublime.*"
+      ],
+      "folder_exclude_patterns":
+      [
+        "tmp",
+        "log"
+      ],
+      "path": "."
+    }
+  ]
 }
