@@ -75,8 +75,8 @@ ActiveRecord::Base.transaction do
       leave = date.to_datetime + 18.hours + dist_rand[
         [0, rand(1..30).minutes], [90, 100], true
       ].seconds
-      claim_arrive = rand(0..99) > 95 ? arrive + dist_rand[[rand(30..60).minutes], [100], true].seconds : ''
-      claim_leave = rand(0..99) > 95 ? arrive + dist_rand[[rand(30..60).minutes], [100], true].seconds : ''
+      claim_arrive = rand(0..99) > 95 ? arrive + dist_rand[[rand(30..60).minutes], [100], true].seconds : nil
+      claim_leave = rand(0..99) > 95 ? arrive + dist_rand[[rand(30..60).minutes], [100], true].seconds : nil
       Timelog.create(
         employee_id: emp.employee_id,
         log_date: date,
@@ -84,10 +84,48 @@ ActiveRecord::Base.transaction do
         leave_datetime: leave,
         claim_arrive_datetime: claim_arrive,
         claim_leave_datetime: claim_leave,
-        claim_status: (claim_arrive.nil? and claim_leave.nil?) ? '' : Timelog::CLAIM_STATUS_OPT.sample
+        claim_status: (claim_arrive.nil? and claim_leave.nil?) ? nil : Timelog::CLAIM_STATUS_OPT.sample
       )
     end
   end
 end
 puts "Finished seeding Timelog data."
 puts dotted
+
+
+# Timesheet
+puts "Now seeding Timesheet data."
+date_ini = Date.new(2016,4,1)
+date_end = Date.new(date_ini.year, date_ini.month, -1)
+ActiveRecord::Base.transaction do
+  while date_ini.month < 7
+    puts date_ini
+    Employee.all.each do |emp|
+      seconds = Timelog.where(
+        'employee_id = ? AND log_date >= ? AND log_date <= ?',
+        emp.id, date_ini, date_end
+      ).map{|x| 
+        arrive = x.arrive_datetime
+        leave = x.leave_datetime
+        if ['pending','approved'].include? x.claim_status
+          arrive = x.claim_arrive_datetime unless x.claim_arrive_datetime.nil?
+          leave = x.claim_leave_datetime unless x.claim_leave_datetime.nil?
+        end
+        leave - arrive
+      }.inject(:+).to_i
+      Timesheet.create(
+        employee: emp,
+        period_start_date: date_ini,
+        period_end_date: date_end,
+        logged_hrs: Util.seconds_to_hrs_min(seconds)[:hours],
+        logged_min: Util.seconds_to_hrs_min(seconds)[:minutes],
+        pay_date: date_end + 7.days
+      )
+    end
+    date_ini = Date.new(date_ini.year, date_ini.month + 1, 1)
+    date_end = Date.new(date_ini.year, date_ini.month, -1)
+  end
+end
+puts "Finished seeding Timesheet data"
+puts dotted
+puts "All seed data how now been added successfully."
