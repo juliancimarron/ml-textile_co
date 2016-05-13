@@ -1,7 +1,25 @@
-%h1 Editing timelog
+= render './top_menu'
+#timelogs_edit
+  .row
+    .column.medium-12
+      %h2.page-title.text-center Report Timesheet Error
 
-= render 'form'
+      .column.small-10.small-offset-1.medium-6.medium-offset-3.large-4.large-offset-4.end
+        %p
+          %strong Employee:
+          = @timelog.employee.full_name
+        - if @timesheet
+          %p
+            %strong Pay Period:
+            = Timesheet.print_timesheet_period(@timesheet)
+        %p
+          %strong Date Disputed:
+          = @timelog.log_date.strftime '%a, %d-%b-%Y'
 
-= link_to 'Show', @timelog
-\|
-= link_to 'Back', timelogs_path
+        %p
+          %strong Claim Status:
+          = @timelog.claim_status ? @timelog.claim_status.titlecase : nil
+
+      .column.medium-8.medium-offset-2.end
+        %br/
+        = render 'form'

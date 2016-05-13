@@ -1,31 +1,28 @@
 = form_for @timelog do |f|
-  - if @timelog.errors.any?
-    #error_explanation
-      %h2= "#{pluralize(@timelog.errors.count, "error")} prohibited this timelog from being saved:"
-      %ul
-        - @timelog.errors.full_messages.each do |msg|
-          %li= msg
+  %p
+    %strong Timelog ID:
+    = @timelog.id
 
-  .field
-    = f.label :employee
-    = f.text_field :employee
-  .field
-    = f.label :log_date
-    = f.date_select :log_date
-  .field
-    = f.label :arrive_datetime
-    = f.datetime_select :arrive_datetime
-  .field
-    = f.label :leave_datetime
-    = f.datetime_select :leave_datetime
-  .field
-    = f.label :claim_arrive_datetime
-    = f.datetime_select :claim_arrive_datetime
-  .field
-    = f.label :claim_leave_datetime
-    = f.datetime_select :claim_leave_datetime
-  .field
-    = f.label :claim_status
-    = f.text_field :claim_status
+  %table
+    %thead
+      %th Moment
+      %th Reported
+      %th 
+        = 'Claimed by Employee'
+        %br/
+        %span (ex: 5:35 pm)
+    %tbody
+      %tr
+        %td Arrival
+        %td= strftime_as_time(@timelog.arrive_datetime)
+        - value = strftime_as_time(@timelog.claim_arrive_datetime)
+        %td= f.text_field :claim_arrive_datetime, value: value
+      %tr
+        %td Departure
+        %td= strftime_as_time(@timelog.leave_datetime)
+        - value = strftime_as_time(@timelog.claim_leave_datetime)
+        %td= f.text_field :claim_leave_datetime, value: value
+
   .actions
-    = f.submit 'Save'
+    = f.submit 'Submit', class: 'button'
+    = link_to 'Cancel', timelogs_path, class: 'float-right button warning'
