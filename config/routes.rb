@@ -6,10 +6,12 @@ Rails.application.routes.draw do
 
   devise_for :employees
 
-  resources :departments
-  resources :employees
-  resources :timelogs
-  resources :timesheets
+  # resources :departments
+  # resources :employees
+  resources :timelogs, only: [:index, :edit, :update]
+  # resources :timesheets
+
+  # -- default text below --
 
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
