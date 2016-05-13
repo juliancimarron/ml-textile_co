@@ -30,7 +30,12 @@ RSpec.shared_context "model_attributes" do
       claim_status: Timelog::CLAIM_STATUS_OPT.first
     }
   end
-  let(:timelog_invalid_attributes) { {employee_id: ''} }
+  let(:timelog_invalid_attributes) do
+    {
+      claim_arrive_datetime: '5:00 pm',
+      claim_leave_datetime: '9:00 am'
+    }
+  end
 
   # Timesheet
   time = Time.now
