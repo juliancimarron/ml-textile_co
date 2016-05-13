@@ -1,21 +1,25 @@
-%p#notice= notice
+= render './top_menu'
+#employees_show
+  .row
+    .column.medium-12
+      %h2.page-title.text-center Employee
+  .row
+    .column.medium-4.medium-centered
+      %p
+        %b Employee ID:
+        = @employee.employee_id
+      %p
+        %b First Name:
+        = @employee.first_name.titlecase
+      %p
+        %b Last Name:
+        = @employee.last_name.titlecase
+      %p
+        %b Department:
+        = @employee.department.name.titlecase
+      %p
+        %b Admin:
+        = @employee.admin == true ? 'True' : 'False'
 
-%p
-  %b Employee:
-  = @employee.employee_id
-%p
-  %b First name:
-  = @employee.first_name
-%p
-  %b Last name:
-  = @employee.last_name
-%p
-  %b Department:
-  = @employee.department
-%p
-  %b Admin:
-  = @employee.admin
-
-= link_to 'Edit', edit_employee_path(@employee)
-\|
-= link_to 'Back', employees_path
+      %br/
+      = link_to 'Back', :back, class: 'button'

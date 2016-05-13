@@ -7,7 +7,7 @@ Rails.application.routes.draw do
   devise_for :employees
 
   # resources :departments
-  # resources :employees
+  resources :employees, only: [:show]
   resources :timelogs, only: [:index, :show, :edit, :update]
   # resources :timesheets
 

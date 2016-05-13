@@ -1,22 +1,20 @@
 require 'rails_helper'
 
-RSpec.xdescribe "employees/show", type: :view do
+RSpec.describe "employees/show", type: :view do
+
+  fixtures :employees
+  fixtures :departments
+
   before(:each) do
-    @employee = assign(:employee, Employee.create!(
-      :employee_id => "Employee",
-      :first_name => "First Name",
-      :last_name => "Last Name",
-      :department => nil,
-      :admin => false
-    ))
+    sign_in employees(:john)
+    @employee = employees(:john)
   end
 
-  it "renders attributes in <p>" do
+  it "renders main elements" do
     render
-    expect(rendered).to match(/Employee/)
-    expect(rendered).to match(/First Name/)
-    expect(rendered).to match(/Last Name/)
-    expect(rendered).to match(//)
-    expect(rendered).to match(/false/)
+
+    expect(rendered).to have_text 'First Name'
+    expect(rendered).to have_text @employee.first_name.titlecase
+    expect(rendered).to have_link 'Back'
   end
 end
