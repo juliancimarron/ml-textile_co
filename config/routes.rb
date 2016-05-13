@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   # resources :departments
   # resources :employees
-  resources :timelogs, only: [:index, :edit, :update]
+  resources :timelogs, only: [:index, :show, :edit, :update]
   # resources :timesheets
 
   # -- default text below --
