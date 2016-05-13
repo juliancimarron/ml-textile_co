@@ -2,10 +2,9 @@
   .column.small-12
     %nav#main-menu.top-bar
       .top-bar-title
-        %span{data:{'responsive-toggle': 'responsive-menu', 'hide-for': 'medium'}}
-          %button.menu-icon.dark{type: 'button', 'data-toggle': true}
         %strong Textile.Co
       #responsive-menu
+        - fullpath = request.fullpath
         .top-bar-left
           %ul.menu
             %li
@@ -14,11 +13,10 @@
               %a{:href => '#'} Timesheet Errors
         .top-bar-right
           %ul.menu
-            %li{class: class_by_fullpath('active',request.fullpath, 
-              ['timelogs', 'timelog_errors'])}
-              = link_to 'My Timesheets', '#'
-            %li
-              %a{href: '#'} My Profile
+            %li{class: class_by_fullpath('active', fullpath, ['timelogs', 'timelog_errors'])}
+              = link_to 'My Timesheets', timelogs_path
+            %li{class: class_by_fullpath('active', fullpath, 'employees')}
+              %a{href: employee_path(current_employee)} My Profile
             %li
               = link_to 'Sign Out', destroy_employee_session_path, method: :delete
   .column.small-12
