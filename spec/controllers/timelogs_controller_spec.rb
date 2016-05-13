@@ -126,9 +126,16 @@ RSpec.describe TimelogsController, type: :controller do
         expect(assigns(:timelog)).to eq(valid_timelog)
       end
 
+      it "sets claim_status = 'pending'" do
+        valid_timelog.claim_status = nil
+        put :update, {:id => valid_timelog.id, :timelog => new_attributes}
+        valid_timelog.reload
+        expect(valid_timelog.claim_status).to eq 'pending'
+      end
+
       it "redirects to the timelog" do
         put :update, {:id => valid_timelog.id, :timelog => timelog_valid_attributes}
-        expect(response).to redirect_to(timelogs_url)
+        expect(response).to redirect_to( timelog_path(valid_timelog.id) )
       end
     end
 

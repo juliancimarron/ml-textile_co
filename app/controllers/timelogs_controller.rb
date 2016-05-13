@@ -1,6 +1,6 @@
 class TimelogsController < ApplicationController
-  before_action :set_timelog, only: [:edit, :update]
-  before_action :set_timesheet, only: [:edit, :update]
+  before_action :set_timelog, only: [:edit, :show, :update]
+  before_action :set_timesheet, only: [:edit, :show, :update]
 
   # GET /timelogs
   # GET /timelogs.json
@@ -56,7 +56,6 @@ class TimelogsController < ApplicationController
   # PATCH/PUT /timelogs/1.json
   def update
     tl_updates = {}
-
     timelog_params.each do |k, v|
       v.strip!
       moment = %w(arrive leave).select{|x| k.include? x}[0]
@@ -65,15 +64,15 @@ class TimelogsController < ApplicationController
         tl_updates["claim_#{moment}_datetime"] = nil
       else
         dt = DateTime.parse "#{@timelog.log_date} #{v}"
-        stored_dt = @timelog.send("#{moment}_datetime".to_sym)
         tl_updates["claim_#{moment}_datetime"] = dt
+        tl_updates[:claim_status] = 'pending'
       end
     end
 
     @timelog.update!(tl_updates)
 
-    notice = 'The Timesheet Error Report was successfully submitted'
-    redirect_to timelogs_url, notice: notice
+    notice = 'Timesheet Error Report successfully submitted. It will be reviewed shortly.'
+    redirect_to timelog_path(@timelog), notice: notice
   rescue
     flash[:alert] = 'Invalid time format entered. Please follow the pattern "5:35 pm".'
     render :edit
@@ -123,5 +122,4 @@ class TimelogsController < ApplicationController
         redirect_to(root_url, notice: notice) and return
       end
     end
-
 end
