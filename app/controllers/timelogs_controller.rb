@@ -14,7 +14,7 @@ class TimelogsController < ApplicationController
     end
 
     @timesheet_ids = @timesheets.map{|x| [Timesheet.print_timesheet_period(x), x.id]}
-    @proc_timelogs = process_timelogs(@timesheet)
+    @proc_timelogs = Timelog.process_timelogs(@timesheet, current_employee)
   end
 
   # GET /timelogs/1
@@ -112,75 +112,16 @@ class TimelogsController < ApplicationController
       end
     end
 
-  def set_timesheet
-    @timesheet = Timesheet.where(
-      'employee_id = ? AND period_start_date <= ? AND period_end_date >= ?',
-      current_employee.id, @timelog.log_date, @timelog.log_date
-    ).first
+    def set_timesheet
+      @timesheet = Timesheet.where(
+        'employee_id = ? AND period_start_date <= ? AND period_end_date >= ?',
+        current_employee.id, @timelog.log_date, @timelog.log_date
+      ).first
 
-    unless @timesheet 
-      notice = 'Action could not be completed.'
-      redirect_to(root_url, notice: notice) and return
-    end
-  end
-
-    def process_timelogs(timesheet) 
-      period_minutes = 0
-      processed_timelogs = []
-
-      Timelog.where(
-        'employee_id = ? AND log_date >= ? AND log_date <= ?',
-        current_employee.id,
-        timesheet.period_start_date,
-        timesheet.period_end_date
-      ).order(log_date: :asc).each do |timelog|
-        hash = {}
-        hash[:log_date] = timelog.log_date.strftime '%a, %d-%b-%Y'
-        hash[:action] = {}
-
-        arrive = timelog.arrive_datetime
-        leave = timelog.leave_datetime
-        if ['pending','approved'].include? timelog.claim_status
-          arrive = timelog.claim_arrive_datetime unless timelog.claim_arrive_datetime.nil?
-          leave = timelog.claim_leave_datetime unless timelog.claim_leave_datetime.nil?
-        end
-        hash[:arrive_time] = arrive.strftime '%l:%M %p'
-        hash[:leave_time] = leave.strftime '%l:%M %p'
-
-        seconds = (leave - arrive).to_i
-        hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
-        hash[:minutes] = Util.seconds_to_hrs_min(seconds)[:minutes]
-        period_minutes += hash[:minutes] + hash[:hours] * 60
-        
-        case timelog.claim_status
-        when 'pending'
-          hash[:status] = 'Pending Review'
-        when 'approved'
-          hash[:status] = 'Claim Approved'
-        when 'declined'
-          hash[:status] = 'Claim Declined'
-        end
-
-        # if timesheet.pay_date - 3.days == Time.now.to_date
-        if true
-          link = edit_timelog_path(timelog.id)          
-          case timelog.claim_status
-          when NilClass
-            hash[:action][:text] = 'Report Error'
-            hash[:action][:path] = link
-          when 'pending'
-            hash[:action][:text] = 'Edit Report' 
-            hash[:action][:path] = link
-          end
-        end
-
-        processed_timelogs << hash
+      unless @timesheet 
+        notice = 'Action could not be completed.'
+        redirect_to(root_url, notice: notice) and return
       end
-
-      timesheet.logged_hrs = period_minutes / 60
-      timesheet.logged_min = period_minutes - timesheet.logged_hrs * 60
-      timesheet.save
-
-      return processed_timelogs
     end
+
 end
