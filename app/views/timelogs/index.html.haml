@@ -1,33 +1,44 @@
-%h1 Listing timelogs
-
-%table
-  %thead
-    %tr
-      %th Employee
-      %th Log date
-      %th Arrive datetime
-      %th Leave datetime
-      %th Claim arrive datetime
-      %th Claim leave datetime
-      %th Claim status
-      %th
-      %th
-      %th
-
-  %tbody
-    - @timelogs.each do |timelog|
-      %tr
-        %td= timelog.employee
-        %td= timelog.log_date
-        %td= timelog.arrive_datetime
-        %td= timelog.leave_datetime
-        %td= timelog.claim_arrive_datetime
-        %td= timelog.claim_leave_datetime
-        %td= timelog.claim_status
-        %td= link_to 'Show', timelog
-        %td= link_to 'Edit', edit_timelog_path(timelog)
-        %td= link_to 'Destroy', timelog, :method => :delete, :data => { :confirm => 'Are you sure?' }
-
-%br
-
-= link_to 'New Timelog', new_timelog_path
+= render './top_menu'
+#timelogs_index
+  .row
+    .column.small-12
+      %h2.page-title.text-center Timesheet Review
+    .column.small-8.small-offset-2.medium-4.medium-offset-4.end
+      %p
+        %strong Name:
+        = current_employee.full_name
+      %p
+        = form_for 'timelogs', method: :get do |f|
+          %strong Pay Period:
+          = f.select :timesheet_id, @timesheet_ids, selected: @timesheet.id
+          = f.submit 'Submit', class: 'button'
+    .column.large-12
+      %p
+        %strong Time Reported:
+        = "#{@timesheet.logged_hrs} hours, #{@timesheet.logged_min} minutes"
+      %br/
+      %table
+        %thead
+          %th Date
+          %th Arrival
+          %th Departure
+          %th Hours
+          %th Minutes
+          %th Status
+          %th Actions
+        %tbody
+          - if @proc_timelogs.empty?
+            %tr
+              %td{colspan: 7} There is no data for this period.
+          - else
+            - @proc_timelogs.each do |timelog|
+              %tr
+                %td= timelog[:log_date]
+                %td= timelog[:arrive_time]
+                %td= timelog[:leave_time]
+                %td= timelog[:hours]
+                %td= timelog[:minutes]
+                %td= timelog[:status]
+                %td
+                  -if timelog[:action].any?
+                    = link_to(timelog[:action][:text], timelog[:action][:path])
