@@ -44,8 +44,9 @@ RSpec.describe ApplicationHelper, type: :helper do
   end
 
   describe '#strftime_as_date' do
-    it "returns string formatted as 'dd/mmm/yyyy' and no-zero-padded" do
-      expect( strftime_as_date(new_dt) ).to eq date
+    it "returns string formatted as 'ddd, dd/mmm/yyyy' and no-zero-padded" do
+      test_date = Date.parse date
+      expect( strftime_as_date(new_dt) ).to eq test_date.strftime '%a, %d-%b-%Y'
     end
   end
 

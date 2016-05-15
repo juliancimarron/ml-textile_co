@@ -12,7 +12,7 @@ module ApplicationHelper
   end
 
   def strftime_as_date(obj) 
-    strftime_formatter('%d-%b-%Y', obj)
+    strftime_formatter('%a, %d-%b-%Y', obj)
   end
 
   def strftime_as_time(obj) 
