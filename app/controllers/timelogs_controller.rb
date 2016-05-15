@@ -5,16 +5,29 @@ class TimelogsController < ApplicationController
   # GET /timelogs
   # GET /timelogs.json
   def index
-    @timesheets = Timesheet.where(employee: current_employee)
-    timesheet_id = params.fetch(:timelogs, {}).fetch(:timesheet_id, @timesheets.last.id)
-    unless @timesheet = @timesheets.where(id: timesheet_id).first
-      notice = 'Action could not be completed.'
-      redirect_to(root_url, notice: notice) and return
+    today = Time.now.to_date
+    timeframe_start = today - 4.months
+    timeframe_start = Date.new timeframe_start.year, timeframe_start.month
+    timeframe_end = Date.new today.year, today.month, -1
+    
+    @timelogs = Timelog.where(
+      'employee_id = ? AND log_date >= ? AND log_date <= ?',
+      current_employee.id, timeframe_start, timeframe_end
+    ).order(log_date: :desc)
+    
+    @periods = {collection: [], active: nil}
+    period_start = timeframe_start
+    period_end = Date.new period_start.year, period_start.month, -1
+    while period_start <= timeframe_end
+      period = period_start.strftime('%d/%b/%Y') + ' –– ' +  period_end.strftime('%d/%b/%Y')
+      @periods[:collection] << [period, period_start]
+      period_start = period_end + 1.day
+      period_end = Date.new period_start.year, period_start.month, -1
     end
-
-    @timesheets = @timesheets.order(period_start_date: :desc).limit(5).reverse
-    @timesheet_ids = @timesheets.map{|x| [Timesheet.print_timesheet_period(x), x.id]}
-    @proc_timelogs = Timelog.process_timelogs(@timesheet, current_employee)
+    @periods[:active] = params.fetch(:timelogs, {}).fetch(:period, @periods[:collection].last[1])
+    
+    # @proc_timelogs = Timelog.timelogs_for_index_view(@timelogs)
+    @proc_timelogs = []
   end
 
   # GET /timelogs/1

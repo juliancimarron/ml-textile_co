@@ -24,34 +24,65 @@ RSpec.describe TimelogsController, type: :controller do
   end
 
   describe "GET #index" do
+    def get_timelogs(start_date, end_date, employee) 
+      Timelog.where(
+        'employee_id = ? AND log_date >= ? AND log_date <= ?',
+        employee, start_date, end_date)
+    end
+
     let(:employee_timesheets) { Timesheet.where(employee: reg_employee) }
 
     before(:example) do
       sign_in reg_employee
+      today = Time.now.to_date
+      Timelog.delete_all
+      create_timelogs (today - 9.months), (today - 8.months), reg_employee
+      create_timelogs (today - 3.months), (today - 2.month), reg_employee
+      create_timelogs (today + 3.months), (today + 5.months), reg_employee
       controller.instance_variable_set(:@timesheets, employee_timesheets)
     end
 
-    it "assigns employee's timelogs by pay period to @timesheets" do
+    it "assigns last 5 months of employee's timelogs to @timelogs" do
+      period_start = Time.now.to_date - 4.months
+      period_start = Date.new period_start.year, period_start.month
+      period_end = Date.new Time.now.year, Time.now.month, -1
+      timelogs = get_timelogs(period_start, period_end, controller.current_employee)
+
       get :index
-      expect( assigns(:timesheets).first ).to be_a(Timesheet)
-      expect( assigns(:timesheets).count ).to eq employee_timesheets.count
-      expect( assigns(:timesheet_ids).count ).to eq employee_timesheets.count
+      expect( assigns(:timelogs).count ).to eq timelogs.count
+      expect( assigns(:timelogs).first ).to be_a(Timelog)
     end
 
-    it "assigns timesheet as @timesheet" do
-      get :index
-      expect( assigns(:timesheet) ).to be_a(Timesheet)
+    describe "assigns last 5 months of period titles to @periods and selects an active one" do
+      let(:periods) { 5 }
+
+      before(:example) { get :index }
+
+      specify{ expect( assigns(:periods)[:collection].first ).to be_an(Array) }
+      specify{ expect( assigns(:periods)[:collection].first.first ).to be_an(String) }
+      specify{ valid_date = Date.parse assigns(:periods)[:collection].first[1].to_s
+        expect( valid_date ).to be_a(Date) }
+      specify{ expect( assigns(:periods)[:collection].count ).to eq periods }
+      specify{ expect( assigns(:periods)[:active] ).to be_a(Date) }
     end
 
-    it "assigns timesheet id's as @timesheet_ids" do
-      get :index
-      expect( assigns(:timesheet_ids).count ).to eq employee_timesheets.count
-    end
+    # it "assigns processed timelogs as @proc_timelogs" do
+    #   period_start = Time.now.to_date - 4.months
+    #   period_start = Date.new period_start.year, period_start.month
+    #   period_end = Date.new Time.now.year, Time.now.month, -1
+    #   timelogs = get_timelogs(period_start, period_end, controller.current_employee)
+    #   period_business_days = 0
 
-    it "assigns processed timelogs as @proc_timelogs" do
-      get :index
-      expect( assigns(:proc_timelogs).count ).to eq employee_timesheets.count
-    end
+    #   date = period_start
+    #   while date < period_end
+    #     period_business_days += 1 unless [6,7].include? date.cwday
+    #     date += 1.day
+    #   end
+
+    #   get :index
+    #   expect( assigns(:proc_timelogs) ).to be_a(Hash)
+    #   expect( assigns(:proc_timelogs).count ).to be < period_business_days
+    # end
   end
 
   # describe "GET #show" do
