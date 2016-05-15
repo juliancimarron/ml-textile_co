@@ -45,7 +45,7 @@ RSpec.describe Timelog, type: :model do
     context 'valid attributes' do 
       it "is an object that responds to :to_date" do
         timelog = valid_timelog
-        timelog.log_date = DateTime.now
+        timelog.log_date = DateTime.now + 2.days
         expect(timelog).to be_valid
       end
     end
@@ -54,6 +54,16 @@ RSpec.describe Timelog, type: :model do
       it "is blank" do
         timelog = valid_timelog
         timelog.log_date = ''
+        expect(timelog).to be_invalid
+      end
+
+      it "cannot create duplicate combinations of employee_id and log_date" do
+        a = timelogs(:john).attributes
+        timelog = Timelog.new(
+          employee_id: a[:employee_id], 
+          log_date: a[:log_date], 
+          arrive_sec: a[:arrive_sec]
+        )
         expect(timelog).to be_invalid
       end
     end

@@ -17,7 +17,11 @@ class Timelog < ActiveRecord::Base
     }
 
   validates :log_date,
-    presence: true
+    presence: true,
+    uniqueness: { 
+      scope: :employee_id,
+      message: "There can only be one timelog per date per employee" 
+    }
 
   validate(
     :validate_arrive_sec,

@@ -22,7 +22,7 @@ RSpec.shared_context "model_attributes" do
   let(:timelog_valid_attributes) do
     {
       employee: Employee.first,
-      log_date: Time.now.to_date,
+      log_date: Time.now.to_date - 1.day,
       arrive_sec: 9.hours + 30.minutes,
       leave_sec: 18.hours,
       claim_arrive_sec: 9.hours,
