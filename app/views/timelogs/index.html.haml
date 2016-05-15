@@ -10,12 +10,13 @@
       %p
         = form_for 'timelogs', method: :get do |f|
           %strong Pay Period:
-          = f.select :timesheet_id, @timesheet_ids, selected: @timesheet.id
+          = f.select :period, @periods[:collection], selected: @periods[:active]
           = f.submit 'Submit', class: 'button'
     .column.large-12
       %p
         %strong Time Reported:
-        = "#{@timesheet.logged_hrs} hours, #{@timesheet.logged_min} minutes"
+        - unless @timelogs_time.empty?
+          = "#{@timelogs_time[:hours]} hours, #{@timelogs_time[:minutes]} minutes"
       %br/
       %table
         %thead
@@ -40,5 +41,5 @@
                 %td= timelog[:minutes]
                 %td= timelog[:status]
                 %td
-                  -if timelog[:action].any?
+                  -if timelog[:action] and timelog[:action].any?
                     = link_to(timelog[:action][:text], timelog[:action][:path])
