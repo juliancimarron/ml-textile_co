@@ -3,10 +3,10 @@ class CreateTimelogs < ActiveRecord::Migration
     create_table :timelogs do |t|
       t.references :employee, index: true, foreign_key: true
       t.date :log_date
-      t.datetime :arrive_datetime
-      t.datetime :leave_datetime
-      t.datetime :claim_arrive_datetime
-      t.datetime :claim_leave_datetime
+      t.integer :arrive_sec
+      t.integer :leave_sec
+      t.integer :claim_arrive_sec
+      t.integer :claim_leave_sec
       t.string :claim_status
 
       t.timestamps null: false

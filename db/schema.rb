@@ -43,13 +43,13 @@ ActiveRecord::Schema.define(version: 20160512052639) do
   create_table "timelogs", force: :cascade do |t|
     t.integer  "employee_id"
     t.date     "log_date"
-    t.datetime "arrive_datetime"
-    t.datetime "leave_datetime"
-    t.datetime "claim_arrive_datetime"
-    t.datetime "claim_leave_datetime"
+    t.integer  "arrive_sec"
+    t.integer  "leave_sec"
+    t.integer  "claim_arrive_sec"
+    t.integer  "claim_leave_sec"
     t.string   "claim_status"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
   end
 
   add_index "timelogs", ["employee_id"], name: "index_timelogs_on_employee_id"
