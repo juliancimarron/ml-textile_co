@@ -7,8 +7,8 @@
         - fullpath = request.fullpath
         .top-bar-left
           %ul.menu
-            %li
-              %a{href: '#'} Assistance
+            %li{class: class_by_fullpath('active', fullpath, 'assistance')}
+              %a{href: assistance_path} Assistance
             %li
               %a{:href => '#'} Timesheet Errors
         .top-bar-right
