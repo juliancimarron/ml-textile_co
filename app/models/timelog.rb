@@ -49,10 +49,9 @@ class Timelog < ActiveRecord::Base
     processed_timelogs = []
 
     date = start_date - 1.day
-    while date <= end_date
+    while date <= (end_date - 1.day)
       hash = {}
       date += 1.day
-
       next if [6,7].include? date.cwday # skip weekends
       hash[:log_date] = date.strftime '%a, %d-%b-%Y'
 
