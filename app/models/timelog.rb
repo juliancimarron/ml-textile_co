@@ -45,8 +45,8 @@ class Timelog < ActiveRecord::Base
 
       arrive = get_correct_moment(:arrive, timelog)
       leave = get_correct_moment(:leave, timelog)
-      hash[:arrive_time] = arrive ? arrive.strftime('%l:%M %p') : 'Missing'
-      hash[:leave_time] = leave ? leave.strftime('%l:%M %p') : 'Missing'
+      hash[:arrive_time] = arrive ? (Date.parse('2016-06-01') + arrive).strftime('%l:%M %p') : 'Missing'
+      hash[:leave_time] = leave ? (Date.parse('2016-06-01') + leave).strftime('%l:%M %p') : 'Missing'
 
       seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
       hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]

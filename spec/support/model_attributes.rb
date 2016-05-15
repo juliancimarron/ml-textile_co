@@ -23,17 +23,17 @@ RSpec.shared_context "model_attributes" do
     {
       employee: Employee.first,
       log_date: Time.now.to_date,
-      arrive_datetime: DateTime.parse('8:10 am'),
-      leave_datetime: DateTime.parse('5:00 pm'),
-      claim_arrive_datetime: DateTime.parse('8:00 am'),
-      claim_leave_datetime: DateTime.parse('5:30 pm'),
+      arrive_sec: 9.hours + 30.minutes,
+      leave_sec: 18.hours,
+      claim_arrive_sec: 9.hours,
+      claim_leave_sec: 18.hours + 30.minutes,
       claim_status: Timelog::CLAIM_STATUS_OPT.first
     }
   end
   let(:timelog_invalid_attributes) do
     {
-      claim_arrive_datetime: '5:00 pm',
-      claim_leave_datetime: '9:00 am'
+      claim_arrive_sec: 18.hours,
+      claim_leave_sec: 9.hours
     }
   end
 

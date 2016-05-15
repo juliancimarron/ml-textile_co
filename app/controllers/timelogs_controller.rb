@@ -61,19 +61,19 @@ class TimelogsController < ApplicationController
       moment = %w(arrive leave).select{|x| k.include? x}[0]
 
       if v.empty?
-        tl_updates["claim_#{moment}_datetime"] = nil
+        tl_updates["claim_#{moment}_sec"] = nil
       else
         dt = DateTime.parse "#{@timelog.log_date} #{v}"
-        tl_updates["claim_#{moment}_datetime"] = dt
+        seconds_difference = dt.to_i - @timelog.log_date.to_datetime.to_i
+        tl_updates["claim_#{moment}_sec"] = seconds_difference
         tl_updates[:claim_status] = 'pending'
       end
     end
-
     @timelog.update!(tl_updates)
 
     notice = 'Report successfully submitted.'
     redirect_to timelog_path(@timelog), notice: notice
-  rescue
+  rescue Exception => e
     flash[:alert] = 'Invalid time format entered. Please follow the pattern "5:35 pm".'
     render :edit
   end
@@ -112,7 +112,7 @@ class TimelogsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def timelog_params
-      params.require(:timelog).permit(:claim_arrive_datetime, :claim_leave_datetime)
+      params.require(:timelog).permit(:claim_arrive_sec, :claim_leave_sec)
     end
 
     # Use callbacks to share common setup or constraints between actions.
@@ -138,14 +138,14 @@ class TimelogsController < ApplicationController
     def timelogs_tardies(start_date, end_date) 
       timelogs_date_range(start_date, end_date)
         .select do |t|
-          if t.arrive_datetime.nil? and t.claim_arrive_datetime.nil?
+          if t.arrive_sec.nil? and t.claim_arrive_sec.nil?
             false
           else
             case t.claim_status
             when 'pending', 'approved'
-              9.hours.to_i < (t.claim_arrive_datetime ? t.claim_arrive_datetime : t.arrive_datetime) - t.log_date.to_datetime
+              9.hours < (t.claim_arrive_sec ? t.claim_arrive_sec : t.arrive_sec)
             when 'declined', NilClass
-              9.hours.to_i < t.arrive_datetime - t.log_date.to_datetime
+              9.hours < t.arrive_sec
             end
           end
         end
@@ -153,8 +153,8 @@ class TimelogsController < ApplicationController
 
     def timelogs_missed_work(start_date, end_date) 
       timelogs_date_range(start_date, end_date).select do |t|
-        t.arrive_datetime.nil? and t.claim_arrive_datetime.nil? and 
-        t.leave_datetime.nil? and t.claim_leave_datetime.nil?
+        t.arrive_sec.nil? and t.claim_arrive_sec.nil? and 
+        t.leave_sec.nil? and t.claim_leave_sec.nil?
       end
     end
 

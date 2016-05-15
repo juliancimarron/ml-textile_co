@@ -114,13 +114,17 @@ RSpec.describe TimelogsController, type: :controller do
 
   describe "PUT #update" do
     context "with valid params" do
-      let(:new_attributes) { {claim_arrive_datetime: '6:00 am'} }
+      let(:new_attributes) { {claim_arrive_sec: '6:00 am'} }
 
       it "updates the requested timelog" do
+        date = '2016-05-01'
+        dt_base = DateTime.parse date
+        dt_time = DateTime.parse("#{date} #{new_attributes[:claim_arrive_sec]}")
+        test_sec = dt_time.to_i - dt_base.to_i
+
         put :update, {:id => valid_timelog.id, :timelog => new_attributes}
         valid_timelog.reload
-        new_datetime = DateTime.parse new_attributes[:claim_arrive_datetime]
-        expect(valid_timelog.claim_arrive_datetime).to eq new_datetime
+        expect(valid_timelog.claim_arrive_sec).to eq test_sec
       end
 
       it "assigns the requested timelog as @timelog" do
@@ -142,13 +146,20 @@ RSpec.describe TimelogsController, type: :controller do
     end
 
     context "with invalid params" do
+      let(:update_invalid_attributes) do
+        {
+          claim_arrive_sec: '5:00 pm',
+          claim_leave_sec: '9:00 am'
+        }
+      end
+
       it "assigns the timelog as @timelog" do
-        put :update, {:id => valid_timelog.id, :timelog => timelog_invalid_attributes}
+        put :update, {:id => valid_timelog.id, :timelog => update_invalid_attributes}
         expect(assigns(:timelog)).to eq(valid_timelog)
       end
 
       it "re-renders the 'edit' template" do
-        put :update, {:id => valid_timelog.id, :timelog => timelog_invalid_attributes}
+        put :update, {:id => valid_timelog.id, :timelog => update_invalid_attributes}
         expect(response).to render_template("edit")
       end
     end
@@ -203,8 +214,8 @@ RSpec.describe TimelogsController, type: :controller do
             Timelog.create(
               employee: employee,
               log_date: date,
-              arrive_datetime: date + arrival + offset,
-              leave_datetime: date + departure
+              arrive_sec: arrival + offset,
+              leave_sec: departure
             )
             late -= 1
             date += 1.day
@@ -230,8 +241,8 @@ RSpec.describe TimelogsController, type: :controller do
             Timelog.create(
               employee: employee,
               log_date: date,
-              arrive_datetime: (missed > 0 ? nil : date + 9.hours),
-              leave_datetime: (missed > 0 ? nil : date + 18.hours)
+              arrive_sec: (missed > 0 ? nil : date + 9.hours),
+              leave_sec: (missed > 0 ? nil : date + 18.hours)
             )
             missed -= 1
             date += 1.day
