@@ -6,13 +6,13 @@ class TimelogsController < ApplicationController
   # GET /timelogs.json
   def index
     @timesheets = Timesheet.where(employee: current_employee)
-      .order(period_start_date: :asc)
     timesheet_id = params.fetch(:timelogs, {}).fetch(:timesheet_id, @timesheets.last.id)
     unless @timesheet = @timesheets.where(id: timesheet_id).first
       notice = 'Action could not be completed.'
       redirect_to(root_url, notice: notice) and return
     end
 
+    @timesheets = @timesheets.order(period_start_date: :desc).limit(5).reverse
     @timesheet_ids = @timesheets.map{|x| [Timesheet.print_timesheet_period(x), x.id]}
     @proc_timelogs = Timelog.process_timelogs(@timesheet, current_employee)
   end
@@ -71,7 +71,7 @@ class TimelogsController < ApplicationController
 
     @timelog.update!(tl_updates)
 
-    notice = 'Timesheet Error Report successfully submitted. It will be reviewed shortly.'
+    notice = 'Report successfully submitted.'
     redirect_to timelog_path(@timelog), notice: notice
   rescue
     flash[:alert] = 'Invalid time format entered. Please follow the pattern "5:35 pm".'
