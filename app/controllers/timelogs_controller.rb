@@ -89,6 +89,25 @@ class TimelogsController < ApplicationController
     end
   end
 
+  # GET /timelogs/assistance
+  def assistance 
+    today = Time.now.to_date
+    @report_q = {}
+    @report_q[:start_date] = Date.parse params[:start_date] ? params[:start_date] : (today - 60.days).to_s
+    @report_q[:end_date] = Date.parse params[:end_date] ? params[:end_date] : today.to_s
+    report_type_opt = Timelog::REPORT_TYPE_OPT.keys.map{|x| x.to_s}
+    @report_q[:type] = report_type_opt.include?(params[:type]) ? params[:type] : report_type_opt.first
+    run_report = {
+      tardies: 'timelogs_tardies("#{@report_q[:start_date]}", "#{@report_q[:end_date]}")', 
+      missed_work: 'timelogs_missed_work("#{@report_q[:start_date]}", "#{@report_q[:end_date]}")'
+    }
+
+    @timelogs = eval run_report[@report_q[:type].to_sym]
+  rescue Exception => e
+    notice = 'There was an error processing the report.'
+    redirect_to assistance_url, notice: notice
+  end
+
   private
 
     # Never trust parameters from the scary internet, only allow the white list through.
@@ -108,6 +127,34 @@ class TimelogsController < ApplicationController
       if @timelog.employee_id != current_employee.id
         notice = 'You attempted an unauthorized action.'
         redirect_to timelogs_path, notice: notice
+      end
+    end
+
+    def timelogs_date_range(start_date, end_date) 
+      Timelog.where('log_date >= ? AND log_date <= ?',start_date, end_date)
+        .order(log_date: :asc)
+    end
+
+    def timelogs_tardies(start_date, end_date) 
+      timelogs_date_range(start_date, end_date)
+        .select do |t|
+          if t.arrive_datetime.nil? and t.claim_arrive_datetime.nil?
+            false
+          else
+            case t.claim_status
+            when 'pending', 'approved'
+              9.hours.to_i < (t.claim_arrive_datetime ? t.claim_arrive_datetime : t.arrive_datetime) - t.log_date.to_datetime
+            when 'declined', NilClass
+              9.hours.to_i < t.arrive_datetime - t.log_date.to_datetime
+            end
+          end
+        end
+    end
+
+    def timelogs_missed_work(start_date, end_date) 
+      timelogs_date_range(start_date, end_date).select do |t|
+        t.arrive_datetime.nil? and t.claim_arrive_datetime.nil? and 
+        t.leave_datetime.nil? and t.claim_leave_datetime.nil?
       end
     end
 

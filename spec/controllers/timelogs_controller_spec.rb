@@ -1,8 +1,10 @@
 require 'rails_helper'
 require 'support/model_attributes'
+require 'support/shared_context'
 
 RSpec.describe TimelogsController, type: :controller do
   include_context 'model_attributes'
+  include_context 'create_timelogs_timesheets'
 
   fixtures :timelogs
   fixtures :timesheets
@@ -166,6 +168,86 @@ RSpec.describe TimelogsController, type: :controller do
   #     expect(response).to redirect_to(timelogs_url)
   #   end
   # end
+
+  describe "GET #assistance" do
+    let(:start_date) { Date.new 2016, 5, 1 }
+    let(:end_date) { Date.new 2016, 5, 31 }
+    let(:arrival) { 9.hours }
+    let(:departure) { 18.hours }
+
+    let(:report_params) do
+      {
+        type: 'tardies',
+        start_date: start_date,
+        end_date: end_date,
+        sort_by: 'date'
+      }
+    end
+
+    before(:example) do
+      Employee.delete_all
+      Timelog.delete_all
+      FactoryGirl.create_list(:employee, 2)
+      sign_out employees(:john)
+      sign_in Employee.all.sample
+    end
+
+    context 'Tardies Report' do 
+      let(:days_late) { 7 }
+      before(:example) do
+        Employee.all.each {|employee| 
+          late = days_late
+          date = start_date
+          while date <= end_date
+            offset = late > 0 ? + 1.hour : 0
+            Timelog.create(
+              employee: employee,
+              log_date: date,
+              arrive_datetime: date + arrival + offset,
+              leave_datetime: date + departure
+            )
+            late -= 1
+            date += 1.day
+          end
+        }
+      end
+
+      it "assigns the requested timelogs as @timelogs" do
+        employee = controller.current_employee        
+        get :assistance, report_params
+        expect(assigns(:timelogs).count).to eq(days_late * Employee.count)
+      end
+    end
+
+    context 'Missing Work Report' do 
+      let(:days_missed) { 5 }
+
+      before(:example) do
+        Employee.all.each {|employee| 
+          missed = days_missed
+          date = start_date
+          while date <= end_date
+            Timelog.create(
+              employee: employee,
+              log_date: date,
+              arrive_datetime: (missed > 0 ? nil : date + 9.hours),
+              leave_datetime: (missed > 0 ? nil : date + 18.hours)
+            )
+            missed -= 1
+            date += 1.day
+          end
+        }
+      end
+
+      it "assigns the requested timelogs as @timelogs" do
+        employee = controller.current_employee        
+        test_params = report_params
+        test_params[:type] = 'missed_work'
+        get :assistance, report_params
+        expect(assigns(:timelogs).count).to eq(days_missed * Employee.count)
+      end
+    end
+  end
 
   describe '.print_timesheet_period' do
     it "returns a string displaying the period range" do
