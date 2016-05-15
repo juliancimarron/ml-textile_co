@@ -14,15 +14,15 @@ RSpec.shared_context 'create_timelogs_timesheets' do
     d_values = [0, rand(1..30).minutes]
     d_weights = [90, 100]
     ActiveRecord::Base.transaction do
-      datetime = date_start.to_datetime - 1.day
-      while datetime.month <= date_end.month
-        datetime += 1.day
-        next if [0,6].include? datetime.wday  # skip Weekends
+      date = date_start - 1.day
+      while date <= date_end
+        date += 1.day
+        next if [6,7].include? date.cwday  # skip Weekends
         Timelog.create(
           employee_id: employee.id,
-          log_date: datetime.to_date,
-          arrive_datetime: datetime + 9.hours + dist_rand[d_values, d_weights, true].seconds,
-          leave_datetime: datetime + 18.hours + dist_rand[d_values, d_weights, true].seconds
+          log_date: date,
+          arrive_sec: 9.hours + dist_rand[d_values, d_weights, true].seconds,
+          leave_sec: 18.hours + dist_rand[d_values, d_weights, true].seconds
         )
       end
     end
@@ -35,15 +35,10 @@ RSpec.shared_context 'create_timelogs_timesheets' do
       seconds = Timelog.where(
         'employee_id = ? AND log_date >= ? AND log_date <= ?',
         employee.id, start_date, end_date
-      ).map{|x| 
-        arrive = x.arrive_datetime
-        leave = x.leave_datetime
-        if ['pending','approved'].include? x.claim_status
-          arrive = x.claim_arrive_datetime unless x.claim_arrive_datetime.nil?
-          leave = x.claim_leave_datetime unless x.claim_leave_datetime.nil?
-        end
-
-        return leave - arrive
+      ).map{|timelog| 
+        arrive = Timelog.get_correct_moment(:arrive, timelog)
+        leave = Timelog.get_correct_moment(:arrive, timelog)
+        return (leave.nil? or arrive.nil?) ? 0 : leave - arrive
       }.inject(:+).to_i
 
       Timesheet.create(
