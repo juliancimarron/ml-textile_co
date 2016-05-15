@@ -31,61 +31,76 @@ class Timelog < ActiveRecord::Base
   )
 
 
-  def self.process_timelogs(timesheet, employee) 
+  def self.get_correct_moment(moment, timelog) 
+    time_col = "#{moment}_sec".to_sym
+    claim_time_col = "claim_#{moment}_sec".to_sym
+    time_recorded = timelog.send(time_col)
+    time_claim = timelog.send(claim_time_col)
+    status = timelog.send :claim_status
+
+    res = time_claim ? time_claim : time_recorded
+    res = time_recorded if status == 'declined'
+    return res
+  end
+
+  def self.timelogs_for_index_view(timelogs, start_date, end_date) 
     period_minutes = 0
+    logged_time = {}
     processed_timelogs = []
 
-    timelogs = Timelog.where(
-      'employee_id = ? AND log_date >= ? AND log_date <= ?',
-      employee.id,
-      timesheet.period_start_date,
-      timesheet.period_end_date
-    ).order(log_date: :asc)
-
-    timelogs.each do |timelog|
+    date = start_date - 1.day
+    while date <= end_date
       hash = {}
-      hash[:log_date] = timelog.log_date.strftime '%a, %d-%b-%Y'
-      hash[:action] = {}
+      date += 1.day
 
-      arrive = get_correct_moment(:arrive, timelog)
-      leave = get_correct_moment(:leave, timelog)
-      hash[:arrive_time] = arrive ? (Date.parse('2016-06-01') + arrive).strftime('%l:%M %p') : 'Missing'
-      hash[:leave_time] = leave ? (Date.parse('2016-06-01') + leave).strftime('%l:%M %p') : 'Missing'
+      next if [6,7].include? date.cwday # skip weekends
+      hash[:log_date] = date.strftime '%a, %d-%b-%Y'
 
-      seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
-      hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
-      hash[:minutes] = Util.seconds_to_hrs_min(seconds)[:minutes]
-      period_minutes += hash[:minutes] + hash[:hours] * 60
-      
-      case timelog.claim_status
-      when 'pending'
-        hash[:status] = 'Pending Review'
-      when 'approved'
-        hash[:status] = 'Claim Approved'
-      when 'declined'
-        hash[:status] = 'Claim Declined'
-      end
+      unless timelog = timelogs.where(log_date: date).first
+        hash[:arrive_time] = 'Missing'
+        hash[:leave_time] = 'Missing'
+        hash[:status] = 'Missed Day'
+      else
+        arrive = get_correct_moment(:arrive, timelog)
+        leave = get_correct_moment(:leave, timelog)
+        hash[:arrive_time] = arrive ? (Date.parse('2016-06-01') + arrive.seconds).strftime('%l:%M %p') : 'Missing'
+        hash[:leave_time] = leave ? (Date.parse('2016-06-01') + leave.seconds).strftime('%l:%M %p') : 'Missing'
 
-      # if timesheet.pay_date - 3.days == Time.now.to_date
-      if true
-        link = self.new.edit_timelog_path(timelog.id)          
+        seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
+        hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
+        hash[:minutes] = Util.seconds_to_hrs_min(seconds)[:minutes]
+        period_minutes += hash[:minutes] + hash[:hours] * 60
+        
         case timelog.claim_status
-        when NilClass
-          hash[:action][:text] = 'Report Error'
-          hash[:action][:path] = link
         when 'pending'
-          hash[:action][:text] = 'Edit Report' 
-          hash[:action][:path] = link
+          hash[:status] = 'Pending Review'
+        when 'approved'
+          hash[:status] = 'Claim Approved'
+        when 'declined'
+          hash[:status] = 'Claim Declined'
+        end
+
+        # if timesheet.pay_date - 3.days == Time.now.to_date
+        if true
+          link = self.new.edit_timelog_path(timelog.id)          
+          hash[:action] = {}
+          case timelog.claim_status
+          when NilClass
+            hash[:action][:text] = 'Report Error'
+            hash[:action][:path] = link
+          when 'pending'
+            hash[:action][:text] = 'Edit Report' 
+            hash[:action][:path] = link
+          end
         end
       end
       processed_timelogs << hash
     end
 
-    timesheet.logged_hrs = period_minutes / 60
-    timesheet.logged_min = period_minutes - timesheet.logged_hrs * 60
-    timesheet.save
+    logged_time[:hours] = period_minutes / 60
+    logged_time[:minutes] = period_minutes - logged_time[:hours] * 60
 
-    return processed_timelogs
+    return {timelogs: processed_timelogs, time: logged_time}
   end
 
   private
@@ -153,18 +168,6 @@ class Timelog < ActiveRecord::Base
       unless CLAIM_STATUS_OPT.include? claim_status
         errors.add(:claim_status, "The claimed status entered is invalid.")
       end    
-    end
-
-    def self.get_correct_moment(moment, timelog) 
-      time_col = "#{moment}_sec".to_sym
-      claim_time_col = "claim_#{moment}_sec".to_sym
-      time_recorded = timelog.send(time_col)
-      time_claim = timelog.send(claim_time_col)
-      status = timelog.send :claim_status
-
-      res = time_claim ? time_claim : time_recorded
-      res = time_recorded if status == 'declined'
-      return res
     end
 
 end

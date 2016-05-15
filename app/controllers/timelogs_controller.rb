@@ -24,10 +24,13 @@ class TimelogsController < ApplicationController
       period_start = period_end + 1.day
       period_end = Date.new period_start.year, period_start.month, -1
     end
-    @periods[:active] = params.fetch(:timelogs, {}).fetch(:period, @periods[:collection].last[1])
-    
-    # @proc_timelogs = Timelog.timelogs_for_index_view(@timelogs)
-    @proc_timelogs = []
+    @periods[:active] = params.fetch(:timelogs, {}).fetch(:period, @periods[:collection].last[1].to_s)
+
+    view_start_date = Date.parse @periods[:active]
+    view_end_date = Date.new view_start_date.year, view_start_date.month, -1
+    timelogs_data = Timelog.timelogs_for_index_view(@timelogs, view_start_date, view_end_date)
+    @timelogs_time = timelogs_data[:time]
+    @proc_timelogs = timelogs_data[:timelogs]
   end
 
   # GET /timelogs/1

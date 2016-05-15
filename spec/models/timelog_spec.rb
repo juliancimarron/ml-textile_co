@@ -234,4 +234,8 @@ RSpec.describe Timelog, type: :model do
         expect(res).to eq timelog.claim_arrive_sec
       end
   end
+
+  describe '.timelogs_for_index_view' do
+    pending
+  end
 end

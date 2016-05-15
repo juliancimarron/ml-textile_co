@@ -63,26 +63,32 @@ RSpec.describe TimelogsController, type: :controller do
       specify{ valid_date = Date.parse assigns(:periods)[:collection].first[1].to_s
         expect( valid_date ).to be_a(Date) }
       specify{ expect( assigns(:periods)[:collection].count ).to eq periods }
-      specify{ expect( assigns(:periods)[:active] ).to be_a(Date) }
+      specify{ expect( assigns(:periods)[:active] ).to be_a(String) }
     end
 
-    # it "assigns processed timelogs as @proc_timelogs" do
-    #   period_start = Time.now.to_date - 4.months
-    #   period_start = Date.new period_start.year, period_start.month
-    #   period_end = Date.new Time.now.year, Time.now.month, -1
-    #   timelogs = get_timelogs(period_start, period_end, controller.current_employee)
-    #   period_business_days = 0
+    it "assigns processed timelogs as @proc_timelogs" do
+      period_start = Time.now.to_date - 4.months
+      period_start = Date.new period_start.year, period_start.month
+      period_end = Date.new Time.now.year, Time.now.month, -1
+      timelogs = get_timelogs(period_start, period_end, controller.current_employee)
+      period_business_days = 0
 
-    #   date = period_start
-    #   while date < period_end
-    #     period_business_days += 1 unless [6,7].include? date.cwday
-    #     date += 1.day
-    #   end
+      date = period_start
+      while date < period_end
+        period_business_days += 1 unless [6,7].include? date.cwday
+        date += 1.day
+      end
 
-    #   get :index
-    #   expect( assigns(:proc_timelogs) ).to be_a(Hash)
-    #   expect( assigns(:proc_timelogs).count ).to be < period_business_days
-    # end
+      get :index, {timelogs: {period: period_start.to_s}}
+      expect( assigns(:proc_timelogs) ).to be_an(Array)
+      expect( assigns(:proc_timelogs).count ).to be < period_business_days # employee skipped some work days
+    end
+
+    it "assigns accumulated time for period as @timelogs_time" do
+      get :index
+      expect( assigns(:timelogs_time)[:hours] ).to be_a(Fixnum)
+      expect( assigns(:timelogs_time)[:minutes] ).to be_a(Fixnum)
+    end
   end
 
   # describe "GET #show" do
