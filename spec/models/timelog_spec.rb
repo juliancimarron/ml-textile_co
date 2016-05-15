@@ -194,4 +194,42 @@ RSpec.describe Timelog, type: :model do
     end
   end
 
+  describe '.get_correct_moment' do
+      it "returns claim if status = pending" do
+        timelog = valid_timelog
+        timelog.claim_status = 'pending'
+        res = Timelog.get_correct_moment(:arrive, timelog)
+        expect(res).to eq timelog.claim_arrive_datetime
+      end
+
+      it "returns claim if status = approved" do
+        timelog = valid_timelog
+        timelog.claim_status = 'approved'
+        res = Timelog.get_correct_moment(:arrive, timelog)
+        expect(res).to eq timelog.claim_arrive_datetime
+      end
+
+      it "returns claim if status = declined" do
+        timelog = valid_timelog
+        timelog.claim_status = 'declined'
+        res = Timelog.get_correct_moment(:arrive, timelog)
+        expect(res).to eq timelog.claim_arrive_datetime
+      end
+
+      it "returns recorded if status = nil and claim = nil" do
+        timelog = valid_timelog
+        timelog.claim_status = nil
+        timelog.claim_arrive_datetime = nil
+        res = Timelog.get_correct_moment(:arrive, timelog)
+        expect(res).to eq timelog.arrive_datetime
+      end
+
+      it "returns claim if status = nil and recorded = nil" do
+        timelog = valid_timelog
+        timelog.claim_status = nil
+        timelog.arrive_datetime = nil
+        res = Timelog.get_correct_moment(:arrive, timelog)
+        expect(res).to eq timelog.claim_arrive_datetime
+      end
+  end
 end

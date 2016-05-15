@@ -44,14 +44,10 @@ class Timelog < ActiveRecord::Base
       hash[:log_date] = timelog.log_date.strftime '%a, %d-%b-%Y'
       hash[:action] = {}
 
-      arrive = timelog.arrive_datetime
-      leave = timelog.leave_datetime
-      if ['pending','approved'].include? timelog.claim_status
-        arrive = timelog.claim_arrive_datetime unless timelog.claim_arrive_datetime.nil?
-        leave = timelog.claim_leave_datetime unless timelog.claim_leave_datetime.nil?
-      end
-      hash[:arrive_time] = arrive ? arrive.strftime('%l:%M %p') : 'Time Missing'
-      hash[:leave_time] = leave ? leave.strftime('%l:%M %p') : 'Time Missing'
+      arrive = get_correct_moment(:arrive, timelog)
+      leave = get_correct_moment(:leave, timelog)
+      hash[:arrive_time] = arrive ? arrive.strftime('%l:%M %p') : 'Missing'
+      hash[:leave_time] = leave ? leave.strftime('%l:%M %p') : 'Missing'
 
       seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
       hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
@@ -162,6 +158,17 @@ class Timelog < ActiveRecord::Base
       end
 
       return true
+    end
+
+    def self.get_correct_moment(moment, timelog) 
+      time_col = "#{moment}_datetime".to_sym
+      claim_time_col = "claim_#{moment}_datetime".to_sym
+      time_recorded, time_claim = timelog.send(time_col), timelog.send(claim_time_col)
+      status = timelog.send :claim_status
+
+      res = time_claim ? time_claim : time_recorded
+      res = time_recorded if status == 'declined'
+      return res
     end
 
 end

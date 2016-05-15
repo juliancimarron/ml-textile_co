@@ -13,7 +13,6 @@ RSpec.shared_context 'create_timelogs_timesheets' do
   def create_timelogs(date_start, date_end, employee) 
     d_values = [0, rand(1..30).minutes]
     d_weights = [90, 100]
-
     ActiveRecord::Base.transaction do
       datetime = date_start.to_datetime - 1.day
       while datetime.month <= date_end.month
