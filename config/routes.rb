@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   # resources :departments
   resources :employees, only: [:show]
   resources :timelogs, only: [:index, :show, :edit, :update]
+  get 'assistance' => 'timelogs#assistance'
   # resources :timesheets
 
   # -- default text below --
