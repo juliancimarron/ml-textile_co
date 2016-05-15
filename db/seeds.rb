@@ -5,7 +5,9 @@ departments = [
   'Development',
   'Management'
 ]
-number_of_employees = 5 # will create 1 admin and rest regular
+number_of_employees =   5 # will create 1 admin and rest regular
+timelogs_start_date =   Date.new 2015,1,1
+timelogs_end_date =     Date.new 2016,5,31
 
 
 # Utilities
@@ -62,10 +64,10 @@ puts dotted
 
 # Timelogs
 puts "Now seeding Timelog data."
-date = Date.new(2016, 4, 1) - 1.day
-puts "These records will run to #{Date.new 2016,6,30}"
+date = timelogs_start_date - 1.day
+puts "These records will run to #{timelogs_end_date}"
 ActiveRecord::Base.transaction do
-  while date.month < 7
+  while date <= timelogs_end_date
     puts date += 1.day
     next if [0,6].include? date.wday
     Employee.all.each do |emp|
@@ -89,21 +91,30 @@ ActiveRecord::Base.transaction do
     end
   end
 end
+Timelog.all.select{|t| dist_rand[[false,true], [95,100], false]}
+  .each{|t| 
+    t.arrive_datetime = nil
+    t.leave_datetime = nil
+    t.claim_arrive_datetime = nil
+    t.claim_leave_datetime = nil
+    t.claim_status = nil
+    t.save
+  }
 puts "Finished seeding Timelog data."
 puts dotted
 
 
 # Timesheet
 puts "Now seeding Timesheet data."
-date_ini = Date.new(2016,4,1)
-date_end = Date.new(date_ini.year, date_ini.month, -1)
+date_start = timelogs_start_date
+date_end = Date.new(date_start.year, date_start.month, -1)
 ActiveRecord::Base.transaction do
-  while date_ini.month < 7
-    puts date_ini
+  while date_start <= timelogs_end_date
+    puts date_start
     Employee.all.each do |emp|
       seconds = Timelog.where(
         'employee_id = ? AND log_date >= ? AND log_date <= ?',
-        emp.id, date_ini, date_end
+        emp.id, date_start, date_end
       ).map{|x| 
         arrive = x.arrive_datetime
         leave = x.leave_datetime
@@ -111,19 +122,19 @@ ActiveRecord::Base.transaction do
           arrive = x.claim_arrive_datetime unless x.claim_arrive_datetime.nil?
           leave = x.claim_leave_datetime unless x.claim_leave_datetime.nil?
         end
-        leave - arrive
+        (leave.nil? or arrive.nil?) ? 0 : leave - arrive
       }.inject(:+).to_i
       Timesheet.create(
         employee: emp,
-        period_start_date: date_ini,
+        period_start_date: date_start,
         period_end_date: date_end,
         logged_hrs: Util.seconds_to_hrs_min(seconds)[:hours],
         logged_min: Util.seconds_to_hrs_min(seconds)[:minutes],
         pay_date: date_end + 7.days
       )
     end
-    date_ini = Date.new(date_ini.year, date_ini.month + 1, 1)
-    date_end = Date.new(date_ini.year, date_ini.month, -1)
+    date_start = date_end + 1.day
+    date_end = Date.new(date_start.year, date_start.month, -1)
   end
 end
 puts "Finished seeding Timesheet data"
