@@ -107,9 +107,9 @@ puts dotted
 # Timesheet
 puts "Now seeding Timesheet data."
 date_start = timelogs_start_date
-date_end = timelogs_end_date
+date_end = Date.new(date_start.year, date_start.month, -1)
 ActiveRecord::Base.transaction do
-  while date_start.month < 7
+  while date_start <= timelogs_end_date
     puts date_start
     Employee.all.each do |emp|
       seconds = Timelog.where(
@@ -133,7 +133,7 @@ ActiveRecord::Base.transaction do
         pay_date: date_end + 7.days
       )
     end
-    date_start = Date.new(date_start.year, date_start.month + 1, 1)
+    date_start = date_end + 1.day
     date_end = Date.new(date_start.year, date_start.month, -1)
   end
 end
