@@ -9,10 +9,10 @@ RSpec.describe Timelog, type: :model do
 
   let(:valid_timelog) { Timelog.new timelog_valid_attributes }
 
-  shared_examples 'date_eq_to_log_date' do |field|
-    it "has a base date different to log_date" do
+  shared_examples 'less_than_sec_in_day' do |field|
+    it "the number of seconds entered is beyond 1 day" do
       timelog = valid_timelog
-      timelog[field] = (Time.now + 5.days).to_datetime
+      timelog[field] = 25.hours
       expect(timelog).to be_invalid
     end
   end
@@ -56,26 +56,20 @@ RSpec.describe Timelog, type: :model do
         timelog.log_date = ''
         expect(timelog).to be_invalid
       end
-
-      it "is not an object that responds to :to_date" do
-        timelog = valid_timelog
-        timelog.log_date = Object.new
-        expect(timelog).to be_invalid
-      end
     end
   end
 
-  describe 'arrive_datetime' do
+  describe 'arrive_sec' do
     context 'invalid attributes' do 
-      it_behaves_like 'date_eq_to_log_date', :arrive_datetime
+      it_behaves_like 'less_than_sec_in_day', :arrive_sec
     end
   end
 
-  describe 'leave_datetime' do
+  describe 'leave_sec' do
     context 'valid attributes' do
-      it "skips tests if claim_leave_datetime has a value" do
+      it "skips tests if claim_leave_sec has a value" do
         timelog = valid_timelog
-        timelog.leave_datetime = nil
+        timelog.leave_sec = nil
         expect(timelog).to be_valid
       end
     end
@@ -83,87 +77,85 @@ RSpec.describe Timelog, type: :model do
     context 'invalid attributes' do 
       let(:test_timelog) do
         timelog = valid_timelog
-        timelog.claim_leave_datetime = nil # so these tests can run
+        timelog.claim_leave_sec = nil # so these tests can run
         return timelog
       end
 
-      it_behaves_like 'date_eq_to_log_date', :arrive_datetime
+      it_behaves_like 'less_than_sec_in_day', :arrive_sec
 
-      it "has leave_datetime but arrive_datetime and claim_arrive_datetime are nil" do
+      it "has leave_sec but arrive_sec = nil, claim_arrive_sec = nil" do
         timelog = test_timelog
-        timelog.arrive_datetime = nil
-        timelog.claim_arrive_datetime = nil
-        timelog.leave_datetime = DateTime.now
+        timelog.arrive_sec = nil
+        timelog.claim_arrive_sec = nil
+        timelog.leave_sec = 17.hours
         expect(timelog).to be_invalid
       end
 
-      it "rejects leave_datetime < arrive_datetime if claim_arrive_datetime = nil" do
+      it "rejects leave_sec < arrive_sec if claim_arrive_sec = nil" do
         timelog = test_timelog
-        timelog.claim_arrive_datetime = nil
-        timelog.arrive_datetime = DateTime.now
-        timelog.leave_datetime = timelog.arrive_datetime - 3.hours
+        timelog.claim_arrive_sec = nil
+        timelog.arrive_sec = 8.hours
+        timelog.leave_sec = timelog.arrive_sec - 3.hours
         expect(timelog).to be_invalid
       end
 
-      it "rejects leave_datetime < claim_arrive_datetime if arrive_datetime = nil" do
+      it "rejects leave_sec < claim_arrive_sec if arrive_sec = nil" do
         timelog = test_timelog
-        timelog.arrive_datetime = nil
-        timelog.claim_arrive_datetime = DateTime.now
-        timelog.leave_datetime = timelog.claim_arrive_datetime - 3.hours
+        timelog.arrive_sec = nil
+        timelog.claim_arrive_sec = 8.hours
+        timelog.leave_sec = timelog.claim_arrive_sec - 3.hours
         expect(timelog).to be_invalid
       end
 
-      it "rejects leave_datetime < claim_arrive_datetime if both arrive_datetime and claim_arrive_datetime" do
-        dt = DateTime.now
+      it "rejects leave_sec < claim_arrive_sec if both arrive_sec and claim_arrive_sec" do
         timelog = test_timelog
-        timelog.arrive_datetime = dt - 3.hours # this would be valid
-        timelog.claim_arrive_datetime = dt
-        timelog.leave_datetime = dt - 2.hours # this is invalid
+        timelog.arrive_sec = 9.hours  # this would be valid
+        timelog.claim_arrive_sec = 18.hours
+        timelog.leave_sec = 17.hours # this is invalid
         expect(timelog).to be_invalid
       end
     end
   end
 
-  describe 'claim_arrive_datetime' do
+  describe 'claim_arrive_sec' do
     context 'invalid attributes' do 
-      it_behaves_like 'date_eq_to_log_date', :claim_arrive_datetime
+      it_behaves_like 'less_than_sec_in_day', :claim_arrive_sec
     end
   end
 
-  describe 'claim_leave_datetime' do
+  describe 'claim_leave_sec' do
     context 'invalid attributes' do 
-      it_behaves_like 'date_eq_to_log_date', :arrive_datetime
+      it_behaves_like 'less_than_sec_in_day', :arrive_sec
 
-      it "has claim_leave_datetime but arrive_datetime and claim_arrive_datetime are nil" do
+      it "has claim_leave_sec but arrive_sec and claim_arrive_sec are nil" do
         timelog = valid_timelog
-        timelog.claim_leave_datetime = DateTime.now
-        timelog.arrive_datetime = nil
-        timelog.claim_arrive_datetime = nil        
+        timelog.claim_leave_sec = 18.hours
+        timelog.arrive_sec = nil
+        timelog.claim_arrive_sec = nil        
         expect(timelog).to be_invalid
       end
 
-      it "rejects claim_leave_datetime < arrive_datetime if claim_arrive_datetime = nil" do
+      it "rejects claim_leave_sec < arrive_sec if claim_arrive_sec = nil" do
         timelog = valid_timelog
-        timelog.claim_arrive_datetime = nil
-        timelog.arrive_datetime = DateTime.now
-        timelog.claim_leave_datetime = timelog.arrive_datetime - 3.hours
+        timelog.claim_arrive_sec = nil
+        timelog.arrive_sec = 8.hours
+        timelog.claim_leave_sec = timelog.arrive_sec - 3.hours
         expect(timelog).to be_invalid
       end
 
-      it "rejects claim_leave_datetime < claim_arrive_datetime if arrive_datetime = nil" do
+      it "rejects claim_leave_sec < claim_arrive_sec if arrive_sec = nil" do
         timelog = valid_timelog
-        timelog.arrive_datetime = nil
-        timelog.claim_arrive_datetime = DateTime.now
-        timelog.claim_leave_datetime = timelog.claim_arrive_datetime - 3.hours
+        timelog.arrive_sec = nil
+        timelog.claim_arrive_sec = 9.hours
+        timelog.claim_leave_sec = timelog.claim_arrive_sec - 3.hours
         expect(timelog).to be_invalid
       end
 
-      it "rejects claim_leave_datetime < claim_arrive_datetime if both arrive_datetime and claim_arrive_datetime" do
-        dt = DateTime.now
+      it "rejects claim_leave_sec < claim_arrive_sec if both arrive_sec and claim_arrive_sec" do
         timelog = valid_timelog
-        timelog.arrive_datetime = dt - 3.hours # this would be valid
-        timelog.claim_arrive_datetime = dt
-        timelog.claim_leave_datetime = dt - 2.hours # this is invalid
+        timelog.arrive_sec = 9.hours # this would be valid
+        timelog.claim_arrive_sec = 18.hours
+        timelog.claim_leave_sec = 17.hours # this is invalid
         expect(timelog).to be_invalid
       end
     end
@@ -181,7 +173,7 @@ RSpec.describe Timelog, type: :model do
     context 'invalid attributes' do 
       it "is blank if there is claim data" do
         timelog = valid_timelog
-        timelog.claim_arrive_datetime = DateTime.now
+        timelog.claim_arrive_sec = 9.hours
         timelog.claim_status = nil
         expect(timelog).to be_invalid
       end
@@ -199,37 +191,37 @@ RSpec.describe Timelog, type: :model do
         timelog = valid_timelog
         timelog.claim_status = 'pending'
         res = Timelog.get_correct_moment(:arrive, timelog)
-        expect(res).to eq timelog.claim_arrive_datetime
+        expect(res).to eq timelog.claim_arrive_sec
       end
 
       it "returns claim if status = approved" do
         timelog = valid_timelog
         timelog.claim_status = 'approved'
         res = Timelog.get_correct_moment(:arrive, timelog)
-        expect(res).to eq timelog.claim_arrive_datetime
+        expect(res).to eq timelog.claim_arrive_sec
       end
 
-      it "returns claim if status = declined" do
+      it "returns recorded if status = declined" do
         timelog = valid_timelog
         timelog.claim_status = 'declined'
         res = Timelog.get_correct_moment(:arrive, timelog)
-        expect(res).to eq timelog.claim_arrive_datetime
+        expect(res).to eq timelog.arrive_sec
       end
 
       it "returns recorded if status = nil and claim = nil" do
         timelog = valid_timelog
         timelog.claim_status = nil
-        timelog.claim_arrive_datetime = nil
+        timelog.claim_arrive_sec = nil
         res = Timelog.get_correct_moment(:arrive, timelog)
-        expect(res).to eq timelog.arrive_datetime
+        expect(res).to eq timelog.arrive_sec
       end
 
       it "returns claim if status = nil and recorded = nil" do
         timelog = valid_timelog
         timelog.claim_status = nil
-        timelog.arrive_datetime = nil
+        timelog.arrive_sec = nil
         res = Timelog.get_correct_moment(:arrive, timelog)
-        expect(res).to eq timelog.claim_arrive_datetime
+        expect(res).to eq timelog.claim_arrive_sec
       end
   end
 end
