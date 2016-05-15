@@ -74,7 +74,7 @@ RSpec.describe TimelogsController, type: :controller do
       period_business_days = 0
 
       date = period_start
-      while date < period_end
+      while date <= period_end
         period_business_days += 1 unless [6,7].include? date.cwday
         date += 1.day
       end
