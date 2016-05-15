@@ -4,6 +4,7 @@ class Timelog < ActiveRecord::Base
   belongs_to :employee
 
   CLAIM_STATUS_OPT = %w(pending approved declined)
+  REPORT_TYPE_OPT = {tardies: 'Tardies', missed_work: 'Missed Work'}
 
 
   validates :employee_id,
@@ -49,10 +50,10 @@ class Timelog < ActiveRecord::Base
         arrive = timelog.claim_arrive_datetime unless timelog.claim_arrive_datetime.nil?
         leave = timelog.claim_leave_datetime unless timelog.claim_leave_datetime.nil?
       end
-      hash[:arrive_time] = arrive.strftime '%l:%M %p'
-      hash[:leave_time] = leave.strftime '%l:%M %p'
+      hash[:arrive_time] = arrive ? arrive.strftime('%l:%M %p') : 'Time Missing'
+      hash[:leave_time] = leave ? leave.strftime('%l:%M %p') : 'Time Missing'
 
-      seconds = (leave - arrive).to_i
+      seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
       hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
       hash[:minutes] = Util.seconds_to_hrs_min(seconds)[:minutes]
       period_minutes += hash[:minutes] + hash[:hours] * 60
