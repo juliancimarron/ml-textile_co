@@ -7,3 +7,22 @@
     width: 8rem;
   }
 }
+
+#timelogs-assistance {
+  form#report-params {
+    padding: 0 0 5rem;
+
+    input[type="date"], select {
+      width: 12rem;
+    }
+
+    table, tbody, tr {
+      background: none;
+      border: none;
+    }
+
+    td {
+      padding: .3rem 0 .3rem;
+    }
+  }
+}

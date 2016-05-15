@@ -1,0 +1,48 @@
+= render './top_menu'
+#timelogs-assistance
+  .row
+    .column.medium-12
+      %h2.page-title.text-center Assistance Reports
+    .column.large-offset-1.large-4.end
+      = form_tag assistance_path, method: :get, id: 'report-params'
+      %table
+        %tr
+          %td= label_tag :type, 'Report Type'
+          %td= select_tag :type,
+            options_for_select(Timelog::REPORT_TYPE_OPT.map{|k,v| [v, k]}, @report_q[:type])
+        %tr
+          %td= label_tag :start_date, 'Start Date'
+          %td
+            .subheader format: dd/mm/yyyy
+            = date_field_tag :start_date, @report_q[:start_date]
+        %tr
+          %td= label_tag :end_date, 'End Date'
+          %td
+            .subheader format: dd/mm/yyyy
+            = date_field_tag :end_date, @report_q[:end_date]
+      .row
+        .column.large-12.text-center
+          = submit_tag 'Send', class: 'button text-center'
+  .row
+    .column.large-12
+      %table
+        %thead
+          %th Date
+          %th Name
+          %th Arrival
+          %th Departure
+          %th Late By
+        %tbody
+          - if @timelogs.empty?
+            %tr
+              %td{colpan: 5} There is no data to display.
+          - else
+            - @timelogs.each do |timelog|
+              %tr
+                %td= strftime_as_date(timelog.log_date)
+                %td= timelog.employee.full_name
+                - arrive = Timelog.get_correct_moment(:arrive, timelog)
+                %td= arrive ? strftime_as_time(arrive) : 'Missing'
+                - leave = Timelog.get_correct_moment(:leave, timelog)
+                %td= leave ? strftime_as_time(leave) : 'Missing'
+                %td= print_late_by(9.hours, timelog)
