@@ -1,13 +1,11 @@
 RSpec.shared_context 'create_timelogs_timesheets' do
 
-  let(:dist_rand) do
-    lambda {|values, distr, has_sign|
-      return unless values.size == distr.size
-      r = rand(0..99)
-      value_index = distr.index {|x| x > r}
-      value = values[value_index]
-      return has_sign ? [1,-1].sample * value : value
-    }
+  def dist_rand(values, distr, has_sign)
+    return unless values.size == distr.size
+    r = rand(0..99)
+    value_index = distr.index {|x| x > r}
+    value = values[value_index]
+    return has_sign ? [1,-1].sample * value : value
   end
 
   def create_timelogs(date_start, date_end, employee) 
@@ -16,13 +14,14 @@ RSpec.shared_context 'create_timelogs_timesheets' do
     ActiveRecord::Base.transaction do
       date = date_start - 1.day
       while date <= date_end
+        next if dist_rand([false,true], [95,100], false)
         date += 1.day
         next if [6,7].include? date.cwday  # skip Weekends
         Timelog.create(
           employee_id: employee.id,
           log_date: date,
-          arrive_sec: 9.hours + dist_rand[d_values, d_weights, true].seconds,
-          leave_sec: 18.hours + dist_rand[d_values, d_weights, true].seconds
+          arrive_sec: 9.hours + dist_rand(d_values, d_weights, true).seconds,
+          leave_sec: 18.hours + dist_rand(d_values, d_weights, true).seconds
         )
       end
     end
