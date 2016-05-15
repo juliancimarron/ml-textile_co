@@ -10,5 +10,5 @@ john:
 julian:
   employee: julian
   log_date: <%= Time.now.to_date %>
-  arrive_datetime: <%= DateTime.parse '8:10 am' %>
+  arrive_datetime: <%= DateTime.parse '9:30' am' %>
   leave_datetime: <%= DateTime.parse '5:00 pm' %>
