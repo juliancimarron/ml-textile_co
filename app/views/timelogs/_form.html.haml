@@ -14,14 +14,14 @@
     %tbody
       %tr
         %td Arrival
-        %td= strftime_as_time(@timelog.arrive_datetime)
-        - value = strftime_as_time(@timelog.claim_arrive_datetime)
-        %td= f.text_field :claim_arrive_datetime, value: value
+        %td= strftime_as_time(@timelog.log_date + @timelog.arrive_sec)
+        - value = strftime_as_time(@timelog.log_date + @timelog.claim_arrive_sec)
+        %td= f.text_field :claim_arrive_sec, value: value
       %tr
         %td Departure
-        %td= strftime_as_time(@timelog.leave_datetime)
-        - value = strftime_as_time(@timelog.claim_leave_datetime)
-        %td= f.text_field :claim_leave_datetime, value: value
+        %td= strftime_as_time(@timelog.log_date + @timelog.arrive_sec)
+        - value = strftime_as_time(@timelog.log_date + @timelog.claim_arrive_sec)
+        %td= f.text_field :claim_leave_sec, value: value
 
   .actions
     = f.submit 'Submit', class: 'button'

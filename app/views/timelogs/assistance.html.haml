@@ -41,8 +41,6 @@
               %tr
                 %td= strftime_as_date(timelog.log_date)
                 %td= timelog.employee.full_name
-                - arrive = Timelog.get_correct_moment(:arrive, timelog)
-                %td= arrive ? strftime_as_time(arrive) : 'Missing'
-                - leave = Timelog.get_correct_moment(:leave, timelog)
-                %td= leave ? strftime_as_time(leave) : 'Missing'
+                %td= timelog_moment_in_time(:arrive, timelog)
+                %td= timelog_moment_in_time(:leave, timelog)
                 %td= print_late_by(9.hours, timelog)
