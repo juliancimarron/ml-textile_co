@@ -23,4 +23,17 @@ module TimelogsHelper
     return res
   end
 
+  def reported_error_action(timelog) 
+    case timelog.claim_status
+    when 'pending'
+      approve = link_to 'Approve', '#'
+      decline = link_to 'Decline', '#'
+      return "#{approve} / #{decline}".html_safe
+    when 'approved'
+      (link_to 'Change to Decline', '#')
+    when 'declined'
+      link_to 'Change to Approve', '#'
+    end
+  end
+
 end

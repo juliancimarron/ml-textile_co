@@ -112,4 +112,27 @@ RSpec.describe TimelogsHelper, type: :helper do
     end
   end
 
+  describe '#reported_error_action' do
+    it "returns approve/decline link if status = pending" do
+      valid_timelog.claim_status = 'pending'
+      expect(reported_error_action(valid_timelog)).to have_link 'Approve'
+      expect(reported_error_action(valid_timelog)).to have_link 'Decline'
+    end
+
+    it "returns change to approve if status = declined" do
+      valid_timelog.claim_status = 'declined'
+      expect(reported_error_action(valid_timelog)).to have_link 'Approve'
+    end
+
+    it "returns change to declined if status = approved" do
+      valid_timelog.claim_status = 'approved'
+      expect(reported_error_action(valid_timelog)).to have_link 'Decline'
+    end
+
+    it "returns nil for everything else" do
+      valid_timelog.claim_status = nil
+      expect(reported_error_action(valid_timelog)).to be_nil
+    end
+  end
+
 end
