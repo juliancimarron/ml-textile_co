@@ -14,4 +14,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def authorize_employee 
+    unless current_employee.admin?
+      redirect_to timelogs_url, notice: "You attempted an unauthorized action."
+    end
+  end
+
 end
