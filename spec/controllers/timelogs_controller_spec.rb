@@ -11,6 +11,7 @@ RSpec.describe TimelogsController, type: :controller do
 
   let(:valid_timelog) { timelogs(:john) }
   let(:reg_employee) { employees(:john) }
+  let(:admin_employee) { employees(:julian) }
 
   before(:example) { sign_in employees(:john) } 
 
@@ -300,6 +301,63 @@ RSpec.describe TimelogsController, type: :controller do
         get :assistance, report_params
         expect(assigns(:timelogs).count).to eq(days_missed * Employee.count)
       end
+    end
+  end
+
+  describe "GET #reported_errors" do
+    let(:start_date) { Time.now.to_date - 3.months }
+    let(:end_date) { Time.now.to_date }
+
+    before(:example) do
+      sign_out employees(:john)
+      sign_in admin_employee
+
+      Timelog.delete_all
+
+      Employee.all.each do |employee|
+        create_timelogs(start_date - 2.months, end_date, employee)
+      end
+
+      Timelog.all.each do |timelog|
+        next if dist_rand([false, true], [50,100], false)
+        timelog.update(
+          claim_arrive_sec: (8.hours + 30.minutes),
+          claim_leave_sec: (18.hours + 30.minutes),
+          claim_status: dist_rand(%w(pending approved declined), [33,66,100], false)
+        )
+      end
+    end
+
+    it "assigns timelogs with reported errors as @timelogs" do
+      timelog_errors = Timelog.where(
+        '(claim_status = ?) OR (log_date >= ? AND log_date <= ? AND claim_status IN (?))',
+        'pending', start_date, end_date, ['approved', 'declined'])
+      get :reported_errors
+      expect(assigns(:timelogs).count).to eq timelog_errors.count
+    end
+
+    it "assigns timelogs with claim_status = 'pending' to @timelogs" do
+      ids = Timelog.where(
+        'claim_status == ? AND log_date >= ? AND log_date <= ?',
+        'pending', start_date, end_date).pluck(:id)
+      get :reported_errors
+      expect(assigns(:timelogs).where(id: ids).count).to eq ids.count
+    end
+
+    it "assigns timelogs with claim_status = 'appoved' from the last 3 months" do
+      ids = Timelog.where(
+        'claim_status == ? AND log_date >= ? AND log_date <= ?',
+        'approved', start_date, end_date).pluck(:id)
+      get :reported_errors
+      expect(assigns(:timelogs).where(id: ids).count).to eq ids.count
+    end
+
+    it "assigns timelogs with claim_status = 'declined' from the last 3 months" do
+      ids = Timelog.where(
+        'claim_status == ? AND log_date >= ? AND log_date <= ?',
+        'declined', start_date, end_date).pluck(:id)
+      get :reported_errors
+      expect(assigns(:timelogs).where(id: ids).count).to eq ids.count
     end
   end
 

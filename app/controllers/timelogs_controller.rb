@@ -125,6 +125,17 @@ class TimelogsController < ApplicationController
     redirect_to assistance_url, notice: notice
   end
 
+  # GET /timelogs/assistance
+  def reported_errors 
+    start_date = Time.now.to_date - 3.months
+    end_date = Time.now.to_date
+
+    @timelogs = Timelog
+      .where('(claim_status = ?) OR (log_date >= ? AND log_date <= ? AND claim_status IN (?))',
+        'pending', start_date, end_date, ['approved', 'declined'])
+      .order(log_date: :asc)
+  end
+
   private
 
     # Never trust parameters from the scary internet, only allow the white list through.

@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   resources :employees, only: [:show]
   resources :timelogs, only: [:index, :show, :edit, :update]
   get 'assistance' => 'timelogs#assistance'
-  # resources :timesheets
+  get 'reported_errors' => 'timelogs#reported_errors'
 
   # -- default text below --
 
