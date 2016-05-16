@@ -121,6 +121,13 @@ class TimelogsController < ApplicationController
     }
 
     @timelogs = eval(run_report[@report_q[:type].to_sym])
+
+    @report_q[:chart_all] = Timelog
+      .where('log_date >= ? AND log_date <= ?', @report_q[:start_date], @report_q[:end_date])
+      .count
+    @report_q[:chart_part] = @timelogs.count
+    @report_q[:chart_label_all] = @report_q[:type] == 'tardies' ? 'On Time' : 'Missed Work'
+    @report_q[:chart_label_part] = @report_q[:type] == 'tardies' ? 'Late' : 'Worked'
   rescue Exception => e
     notice = 'There was an error processing the report.'
     redirect_to assistance_url, notice: notice
