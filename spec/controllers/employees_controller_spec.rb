@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.xdescribe EmployeesController, type: :controller do
+RSpec.describe EmployeesController, type: :controller do
+
+  fixtures :employees
+
+  before(:example) { sign_in employees(:john) } 
 
   # describe "GET #index" do
   #   it "assigns all employees as @employees" do
@@ -12,8 +16,8 @@ RSpec.xdescribe EmployeesController, type: :controller do
 
   describe "GET #show" do
     it "assigns the requested employee as @employee" do
-      employee = Employee.create! valid_attributes
-      get :show, {:id => employee.to_param}, valid_session
+      employee = employees(:john)
+      get :show, {:id => employee.to_param}
       expect(assigns(:employee)).to eq(employee)
     end
   end
