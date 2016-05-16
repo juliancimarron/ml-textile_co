@@ -255,6 +255,7 @@ RSpec.describe TimelogsController, type: :controller do
           late = days_late
           date = start_date
           while date <= end_date
+            date += 1 and next if [6,7].include? date.cwday
             offset = late > 0 ? + 1.hour : 0
             Timelog.create(
               employee: employee,
@@ -283,13 +284,14 @@ RSpec.describe TimelogsController, type: :controller do
           missed = days_missed
           date = start_date
           while date <= end_date
+            date += 1 and next if [6,7].include? date.cwday
+            missed -= 1 and date += 1.day and next if missed > 0
             Timelog.create(
               employee: employee,
               log_date: date,
-              arrive_sec: (missed > 0 ? nil : date + 9.hours),
-              leave_sec: (missed > 0 ? nil : date + 18.hours)
+              arrive_sec: arrival,
+              leave_sec: departure
             )
-            missed -= 1
             date += 1.day
           end
         }

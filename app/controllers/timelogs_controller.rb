@@ -115,11 +115,11 @@ class TimelogsController < ApplicationController
     report_type_opt = Timelog::REPORT_TYPE_OPT.keys.map{|x| x.to_s}
     @report_q[:type] = report_type_opt.include?(params[:type]) ? params[:type] : report_type_opt.first
     run_report = {
-      tardies: 'timelogs_tardies("#{@report_q[:start_date]}", "#{@report_q[:end_date]}")', 
-      missed_work: 'timelogs_missed_work("#{@report_q[:start_date]}", "#{@report_q[:end_date]}")'
+      tardies: 'timelogs_tardies(@report_q[:start_date], @report_q[:end_date])', 
+      missed_work: 'timelogs_missed_work(@report_q[:start_date], @report_q[:end_date])'
     }
 
-    @timelogs = eval run_report[@report_q[:type].to_sym]
+    @timelogs = eval(run_report[@report_q[:type].to_sym])
   rescue Exception => e
     notice = 'There was an error processing the report.'
     redirect_to assistance_url, notice: notice
@@ -169,10 +169,24 @@ class TimelogsController < ApplicationController
     end
 
     def timelogs_missed_work(start_date, end_date) 
-      timelogs_date_range(start_date, end_date).select do |t|
-        t.arrive_sec.nil? and t.claim_arrive_sec.nil? and 
-        t.leave_sec.nil? and t.claim_leave_sec.nil?
+      missed_work = []
+      timelogs = Timelog.where('log_date >= ? AND log_date <= ?', start_date, end_date)
+
+      Employee.all.each do |employee|
+        date = start_date
+        while date <= end_date
+          date += 1 and next if [6,7].include? date.cwday # skip weekends        
+          unless timelogs.where(employee: employee, log_date: date).any?
+            fake_timelog = Struct.new(:log_date, :employee, :arrive_sec, :leave_sec, :claim_arrive_sec, :claim_leave_sec, :claim_status).new
+            fake_timelog.log_date = date
+            fake_timelog.employee = employee
+            missed_work << fake_timelog
+          end
+          date += 1.day
+        end
       end
+
+      return missed_work
     end
 
     def print_pay_timeframe(start_date, end_date) 
