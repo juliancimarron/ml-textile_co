@@ -5,12 +5,13 @@
         %strong Textile.Co
       #responsive-menu
         - fullpath = request.fullpath
-        .top-bar-left
-          %ul.menu
-            %li{class: class_by_fullpath('active', fullpath, 'assistance')}
-              %a{href: assistance_path} Assistance
-            %li{class: class_by_fullpath('active', fullpath, 'reported_errors')}
-              %a{:href => reported_errors_path} Timesheet Errors
+        - if current_employee.admin?
+          .top-bar-left.admin-menu
+            %ul.menu
+              %li{class: class_by_fullpath('active', fullpath, 'assistance')}
+                %a{href: assistance_path} Assistance
+              %li{class: class_by_fullpath('active', fullpath, 'reported_errors')}
+                %a{:href => reported_errors_path} Timesheet Errors
         .top-bar-right
           %ul.menu
             %li{class: class_by_fullpath('active', fullpath, ['timelogs', 'timelog_errors'])}

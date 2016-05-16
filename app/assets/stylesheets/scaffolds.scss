@@ -11,3 +11,13 @@
 body > footer {
   padding: 6rem 0 0;
 }
+
+.admin-menu {
+  .menu > li > a {
+    color: #85282D;
+  }
+
+  .active > a {
+    background: #E4D3BE;
+  }
+}
