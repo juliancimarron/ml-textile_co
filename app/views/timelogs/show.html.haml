@@ -8,17 +8,17 @@
         %p
           %strong Employee:
           = @timelog.employee.full_name
-        - if @timesheet
+        - if @period
           %p
             %strong Pay Period:
-            = Timesheet.print_timesheet_period(@timesheet)
+            = @period
         %p
           %strong Date Disputed:
           = @timelog.log_date.strftime '%a, %d-%b-%Y'
 
         %p
           %strong Claim Status:
-          = @timelog.claim_status.titlecase
+          = @timelog.claim_status ? @timelog.claim_status.titlecase : nil
 
       .column.medium-8.medium-offset-2.end
         %br/
@@ -36,12 +36,12 @@
           %tbody
             %tr
               %td Arrival
-              %td= strftime_as_time(@timelog.arrive_datetime)
-              %td= strftime_as_time(@timelog.claim_arrive_datetime)
+              %td= moment_as_time_for_edit(@timelog.arrive_sec, 'Missed',)
+              %td= moment_as_time_for_edit(@timelog.claim_arrive_sec, nil,)
             %tr
               %td Departure
-              %td= strftime_as_time(@timelog.leave_datetime)
-              %td= strftime_as_time(@timelog.claim_leave_datetime)
+              %td= moment_as_time_for_edit(@timelog.leave_sec, 'Missed',)
+              %td= moment_as_time_for_edit(@timelog.claim_leave_sec, nil,)
 
         .actions
           = link_to 'Timesheets', timelogs_path, class: 'button'
