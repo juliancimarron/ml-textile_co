@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-RSpec.xdescribe "Employees", type: :request do
-  describe "GET /employees" do
+RSpec.describe "Employees", type: :request do
+  xdescribe "GET /employees/1" do
     it "works! (now write some real specs)" do
-      get employees_path
+      get employee_path()
       expect(response).to have_http_status(200)
     end
   end
