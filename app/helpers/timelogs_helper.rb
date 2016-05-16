@@ -6,7 +6,7 @@ module TimelogsHelper
     return res
   end
 
-  def edit_form_moment_as_time(moment, if_nil) 
+  def moment_as_time_for_edit(moment, if_nil) 
     res = moment ? (DateTime.new(2016) + moment.seconds).strftime('%l:%M %p') : if_nil
     return res
   end

@@ -13,6 +13,7 @@ RSpec.describe TimelogsHelper, type: :helper do
       timelog = valid_timelog
       timelog.arrive_sec = time
       timelog.claim_arrive_sec = nil
+      timelog.save
       res = timelog_moment_in_time(:arrive, timelog)
       expect(res.index '5:00 PM').to be >= 0
     end
@@ -22,6 +23,7 @@ RSpec.describe TimelogsHelper, type: :helper do
       timelog = valid_timelog
       timelog.arrive_sec = nil
       timelog.claim_arrive_sec = time
+      timelog.save
       res = timelog_moment_in_time(:arrive, timelog)
       expect(res.index '5:00 PM').to be >= 0
     end
@@ -31,25 +33,26 @@ RSpec.describe TimelogsHelper, type: :helper do
       timelog = valid_timelog
       timelog.arrive_sec = time + 2.hours
       timelog.claim_arrive_sec = time
+      timelog.save
       res = timelog_moment_in_time(:arrive, timelog)
       expect(res.index '5:00 PM').to be >= 0
     end
 
     it "returns string if recorded and claimed moments are nil" do
-      if_nil = 'Not Good'
       timelog = valid_timelog
       timelog.arrive_sec = nil
       timelog.claim_arrive_sec = nil
-      res = edit_form_moment_as_time(timelog.arrive_sec, if_nil)
+      timelog.save
+      res = timelog_moment_in_time(:arrive, timelog)
       expect(res).to be_a(String)
     end
   end
 
-  describe '#edit_form_moment_as_time' do
+  describe '#moment_as_time_for_edit' do
     it "returns formatted string if moment has value" do
       timelog = valid_timelog
       timelog.arrive_sec = 17.hours
-      res = edit_form_moment_as_time(timelog.arrive_sec, nil)
+      res = moment_as_time_for_edit(timelog.arrive_sec, nil)
       expect(res.index '5:00 PM').to be >= 0
     end
 
@@ -57,7 +60,7 @@ RSpec.describe TimelogsHelper, type: :helper do
       if_nil = 'Not Good'
       timelog = valid_timelog
       timelog.arrive_sec = nil
-      res = edit_form_moment_as_time(timelog.arrive_sec, if_nil)
+      res = moment_as_time_for_edit(timelog.arrive_sec, if_nil)
       expect(res).to eq if_nil
     end
   end
