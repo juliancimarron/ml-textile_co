@@ -5,6 +5,7 @@
     %meta{content: "width=device-width, initial-scale=1.0", name: "viewport"}/
     %title= content_for?(:title) ? yield(:title) : "Textile.Co"
     = stylesheet_link_tag    "application"
+    = javascript_include_tag "https://www.google.com/jsapi"
     = javascript_include_tag "application", 'data-turbolinks-track' => true
     = csrf_meta_tags
   %body
