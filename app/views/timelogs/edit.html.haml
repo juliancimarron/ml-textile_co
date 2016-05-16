@@ -8,10 +8,10 @@
         %p
           %strong Employee:
           = @timelog.employee.full_name
-        - if @timesheet
+        - if @period
           %p
             %strong Pay Period:
-            = Timesheet.print_timesheet_period(@timesheet)
+            = @period
         %p
           %strong Date Disputed:
           = @timelog.log_date.strftime '%a, %d-%b-%Y'
