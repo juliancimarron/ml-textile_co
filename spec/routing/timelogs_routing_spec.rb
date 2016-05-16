@@ -35,5 +35,9 @@ RSpec.describe TimelogsController, type: :routing do
     #   expect(:delete => "/timelogs/1").to route_to("timelogs#destroy", :id => "1")
     # end
 
+    it "routes to #assistance" do
+      expect(:get => "/assistance").to route_to("timelogs#assistance")
+    end
+
   end
 end
