@@ -10,6 +10,8 @@ gem 'haml-rails'
 gem 'foundation-rails'
 # Flexible authentication solution for Rails with Warden
 gem 'devise'
+# Create beautiful JavaScript charts with one line of Ruby
+gem 'chartkick'
 
 # Default Gems
 
