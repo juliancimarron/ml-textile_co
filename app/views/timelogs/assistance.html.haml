@@ -27,7 +27,9 @@
     .column.large-12
       %table
         %thead
+          %th
           %th Date
+          %th Employee ID
           %th Name
           %th Arrival
           %th Departure
@@ -37,9 +39,12 @@
             %tr
               %td{colpan: 5} There is no data to display.
           - else
+            - index = 0
             - @timelogs.each do |timelog|
               %tr
+                %td= index += 1
                 %td= strftime_as_date(timelog.log_date)
+                %td= timelog.employee.id
                 %td= timelog.employee.full_name
                 %td= timelog_moment_in_time(:arrive, timelog)
                 %td= timelog_moment_in_time(:leave, timelog)
