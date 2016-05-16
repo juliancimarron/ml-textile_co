@@ -4,10 +4,9 @@ require 'support/shared_context'
 
 RSpec.describe TimelogsController, type: :controller do
   include_context 'model_attributes'
-  include_context 'create_timelogs_timesheets'
+  include_context 'create_timelogs'
 
   fixtures :timelogs
-  fixtures :timesheets
   fixtures :employees
 
   let(:valid_timelog) { timelogs(:john) }
@@ -30,8 +29,6 @@ RSpec.describe TimelogsController, type: :controller do
         employee, start_date, end_date)
     end
 
-    let(:employee_timesheets) { Timesheet.where(employee: reg_employee) }
-
     before(:example) do
       sign_in reg_employee
       today = Time.now.to_date
@@ -39,7 +36,6 @@ RSpec.describe TimelogsController, type: :controller do
       create_timelogs (today - 9.months), (today - 8.months), reg_employee
       create_timelogs (today - 3.months), (today - 2.month), reg_employee
       create_timelogs (today + 3.months), (today + 5.months), reg_employee
-      controller.instance_variable_set(:@timesheets, employee_timesheets)
     end
 
     it "assigns last 5 months of employee's timelogs to @timelogs" do
@@ -304,15 +300,6 @@ RSpec.describe TimelogsController, type: :controller do
         get :assistance, report_params
         expect(assigns(:timelogs).count).to eq(days_missed * Employee.count)
       end
-    end
-  end
-
-  describe '.print_timesheet_period' do
-    it "returns a string displaying the period range" do
-      ts = timesheets(:john)
-      res = Timesheet.print_timesheet_period(ts)
-      expect(res).to have_text ts.period_start_date.strftime('%d/%b/%Y')
-      expect(res).to have_text ts.period_end_date.strftime('%d/%b/%Y')
     end
   end
 

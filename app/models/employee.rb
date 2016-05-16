@@ -1,7 +1,6 @@
 class Employee < ActiveRecord::Base
   belongs_to :department
   has_many :timelogs
-  has_many :timesheets
   
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :omniauthable, :validatable

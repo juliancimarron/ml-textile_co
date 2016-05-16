@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'support/shared_context'
 
 RSpec.describe "timelogs/assistance", type: :view do
-  include_context 'create_timelogs_timesheets'
+  include_context 'create_timelogs'
 
   fixtures :departments
   fixtures :employees

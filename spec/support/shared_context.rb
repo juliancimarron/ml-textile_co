@@ -1,4 +1,4 @@
-RSpec.shared_context 'create_timelogs_timesheets' do
+RSpec.shared_context 'create_timelogs' do
 
   def dist_rand(values, distr, has_sign)
     return unless values.size == distr.size

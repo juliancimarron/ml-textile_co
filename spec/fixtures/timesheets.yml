@@ -1,7 +1,0 @@
-john:
-  employee: john
-  period_start_date: <%= Date.new(Time.now.year, Time.now.month, 1) %>
-  period_end_date: <%= Date.new(Time.now.year, Time.now.month, -1) %>
-  logged_hrs: 180
-  logged_min: 10
-  pay_date: <%= Date.new(Time.now.year, Time.now.month + 1, 7) %>

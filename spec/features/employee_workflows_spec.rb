@@ -4,7 +4,6 @@ RSpec.feature "EmployeeWorkflows", type: :feature do
 
   fixtures :employees
   fixtures :timelogs
-  fixtures :timesheets
   
   it "Root redirects to sign in if not logged in" do
     visit '/'
