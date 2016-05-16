@@ -92,4 +92,17 @@ RSpec.describe "Timelogs", type: :request do
     end  
   end
 
+  context 'GET /assistance' do 
+    it "returns 200 as regular employee" do
+      get reported_errors_path
+      expect(response).to have_http_status(:success)
+    end
+
+    it "returns 200 as admin employee" do
+      login_admin
+      get reported_errors_path
+      expect(response).to have_http_status(:success)
+    end  
+  end
+
 end

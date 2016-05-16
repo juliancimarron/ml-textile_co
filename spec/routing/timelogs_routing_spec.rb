@@ -39,5 +39,9 @@ RSpec.describe TimelogsController, type: :routing do
       expect(:get => "/assistance").to route_to("timelogs#assistance")
     end
 
+    it "routes to #reported_errors" do
+      expect(:get => "/reported_errors").to route_to("timelogs#reported_errors")
+    end
+
   end
 end
