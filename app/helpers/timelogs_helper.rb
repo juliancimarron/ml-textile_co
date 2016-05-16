@@ -6,6 +6,11 @@ module TimelogsHelper
     return res
   end
 
+  def edit_form_moment_as_time(moment, if_nil) 
+    res = moment ? (DateTime.new(2016) + moment.seconds).strftime('%l:%M %p') : if_nil
+    return res
+  end
+
   def print_late_by(arrive_time, timelog) 
     correct_arrive_sec = (timelog.log_date.to_datetime + arrive_time).to_i - timelog.log_date.to_datetime.to_i
     res = 'N/A'

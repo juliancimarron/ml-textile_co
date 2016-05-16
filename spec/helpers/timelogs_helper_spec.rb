@@ -3,6 +3,26 @@ require 'rails_helper'
 RSpec.describe TimelogsHelper, type: :helper do
 
   fixtures :employees
+  fixtures :timelogs
+
+  let(:valid_timelog) { timelogs(:john) }
+
+  describe '#edit_form_moment_as_time' do
+    it "returns formatted string if moment has value" do
+      timelog = valid_timelog
+      timelog.arrive_sec = 17.hours
+      res = edit_form_moment_as_time(timelog.arrive_sec, nil)
+      expect(res.index '5:00 PM').to be >= 0
+    end
+
+    it "returns the if_nil value if moment = nil" do
+      if_nil = 'Not Good'
+      timelog = valid_timelog
+      timelog.arrive_sec = nil
+      res = edit_form_moment_as_time(timelog.arrive_sec, if_nil)
+      expect(res).to eq if_nil
+    end
+  end
 
   describe '#print_late_by' do
     let(:today) { Date.new 2016,5 }
