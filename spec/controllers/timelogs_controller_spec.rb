@@ -110,9 +110,17 @@ RSpec.describe TimelogsController, type: :controller do
       expect(assigns(:timelog)).to eq(valid_timelog)
     end
 
-    it "assigns the corresponding timesheet as @timesheet" do
+    it "redirects to show view if claim_status = approved" do
+      valid_timelog.update claim_status: 'approved'
+      valid_timelog.reload
       get :edit, {:id => valid_timelog.id}
-      expect(assigns(:timesheet).employee).to eq reg_employee
+      expect(response).to redirect_to timelogs_url
+    end
+
+    it "assigns the string for the corresponding pay period as @period" do
+      get :edit, {id: valid_timelog.id}
+      expect( assigns(:period) ).to be_a(String)
+      expect( assigns(:period).index /\w\w\/\w\w\w\/\w\w\w\w/ ).to be >= 0
     end
   end
 

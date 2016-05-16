@@ -49,6 +49,7 @@ class TimelogsController < ApplicationController
       alert = 'The action attempted cannot be completed.'
       redirect_to(timelogs_path, alert: alert) and return
     end
+    @period = print_pay_timeframe(@timelog.log_date, @timelog.log_date).first
   end
 
   # POST /timelogs
@@ -185,4 +186,18 @@ class TimelogsController < ApplicationController
         redirect_to(root_url, notice: notice) and return
       end
     end
+
+    def print_pay_timeframe(start_date, end_date) 
+      period_start = start_date
+      period_end = Date.new period_start.year, period_start.month, -1
+      periods = []
+      while period_start <= end_date
+        periods << period_start.strftime('%d/%b/%Y') + ' –– ' +  period_end.strftime('%d/%b/%Y')
+        period_start = period_end + 1.day
+        period_end = Date.new period_start.year, period_start.month, -1
+      end
+
+      return periods
+    end
+
 end
