@@ -9,11 +9,11 @@ RSpec.describe TimelogsController, type: :controller do
   fixtures :timelogs
   fixtures :employees
 
-  let(:valid_timelog) { timelogs(:john) }
+  let(:valid_timelog) { timelogs(:julian) }
   let(:reg_employee) { employees(:john) }
   let(:admin_employee) { employees(:julian) }
 
-  before(:example) { sign_in employees(:john) } 
+  before(:example) { sign_in admin_employee } 
 
   context 'authorization' do 
     it "redirects to sign in if user not logged in" do
@@ -238,11 +238,7 @@ RSpec.describe TimelogsController, type: :controller do
     end
 
     before(:example) do
-      Employee.delete_all
       Timelog.delete_all
-      FactoryGirl.create_list(:employee, 2)
-      sign_out employees(:john)
-      sign_in Employee.all.sample
     end
 
     context 'Tardies Report' do 

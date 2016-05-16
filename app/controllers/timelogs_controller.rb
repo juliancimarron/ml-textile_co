@@ -1,5 +1,6 @@
 class TimelogsController < ApplicationController
   before_action :set_timelog, only: [:edit, :show, :update]
+  before_action :authorize_employee, only: [:assistance, :reported_errors]
 
   # GET /timelogs
   # GET /timelogs.json
