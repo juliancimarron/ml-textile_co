@@ -1,6 +1,5 @@
 class TimelogsController < ApplicationController
   before_action :set_timelog, only: [:edit, :show, :update]
-  before_action :set_timesheet, only: [:edit, :show, :update]
 
   # GET /timelogs
   # GET /timelogs.json
@@ -173,18 +172,6 @@ class TimelogsController < ApplicationController
       timelogs_date_range(start_date, end_date).select do |t|
         t.arrive_sec.nil? and t.claim_arrive_sec.nil? and 
         t.leave_sec.nil? and t.claim_leave_sec.nil?
-      end
-    end
-
-    def set_timesheet
-      @timesheet = Timesheet.where(
-        'employee_id = ? AND period_start_date <= ? AND period_end_date >= ?',
-        current_employee.id, @timelog.log_date, @timelog.log_date
-      ).first
-
-      unless @timesheet 
-        notice = 'Action could not be completed.'
-        redirect_to(root_url, notice: notice) and return
       end
     end
 
