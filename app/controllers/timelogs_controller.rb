@@ -36,6 +36,7 @@ class TimelogsController < ApplicationController
   # GET /timelogs/1
   # GET /timelogs/1.json
   def show
+    @period = print_pay_timeframe(@timelog.log_date, @timelog.log_date).first
   end
 
   # GET /timelogs/new
