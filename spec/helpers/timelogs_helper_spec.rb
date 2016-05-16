@@ -7,6 +7,44 @@ RSpec.describe TimelogsHelper, type: :helper do
 
   let(:valid_timelog) { timelogs(:john) }
 
+  describe '#timelog_moment_in_time' do
+    it "returns formatted string if recorded moment has value and claimed = nil" do
+      time = 17.hours
+      timelog = valid_timelog
+      timelog.arrive_sec = time
+      timelog.claim_arrive_sec = nil
+      res = timelog_moment_in_time(:arrive, timelog)
+      expect(res.index '5:00 PM').to be >= 0
+    end
+
+    it "returns formatted string if claimed moment has value and recorded = nil" do
+      time = 17.hours
+      timelog = valid_timelog
+      timelog.arrive_sec = nil
+      timelog.claim_arrive_sec = time
+      res = timelog_moment_in_time(:arrive, timelog)
+      expect(res.index '5:00 PM').to be >= 0
+    end
+
+    it "returns formatted string of claimed if claimed and recorded moments have value" do
+      time = 17.hours
+      timelog = valid_timelog
+      timelog.arrive_sec = time + 2.hours
+      timelog.claim_arrive_sec = time
+      res = timelog_moment_in_time(:arrive, timelog)
+      expect(res.index '5:00 PM').to be >= 0
+    end
+
+    it "returns string if recorded and claimed moments are nil" do
+      if_nil = 'Not Good'
+      timelog = valid_timelog
+      timelog.arrive_sec = nil
+      timelog.claim_arrive_sec = nil
+      res = edit_form_moment_as_time(timelog.arrive_sec, if_nil)
+      expect(res).to be_a(String)
+    end
+  end
+
   describe '#edit_form_moment_as_time' do
     it "returns formatted string if moment has value" do
       timelog = valid_timelog

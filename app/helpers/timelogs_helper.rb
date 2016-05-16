@@ -2,7 +2,7 @@ module TimelogsHelper
 
   def timelog_moment_in_time(moment, timelog) 
     moment_i = Timelog.get_correct_moment(moment, timelog)
-    res = moment_i ? strftime_as_time(timelog.log_date.to_datetime + moment_i.seconds) : 'Missing'
+    res = moment_i ? (DateTime.new(2016) + moment_i.seconds).strftime('%l:%M %p') : 'Missing'
     return res
   end
 
