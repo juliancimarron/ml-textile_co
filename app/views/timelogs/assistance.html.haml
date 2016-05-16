@@ -3,7 +3,7 @@
   .row
     .column.medium-12
       %h2.page-title.text-center Assistance Reports
-    .column.large-offset-1.large-4.end
+    .column.large-offset-1.large-4
       = form_tag assistance_path, method: :get, id: 'report-params'
       %table
         %tr
@@ -23,6 +23,9 @@
       .row
         .column.large-12.text-center
           = submit_tag 'Send', class: 'button text-center'
+    .column.large-7
+      = pie_chart({@report_q[:chart_label_all] => @report_q[:chart_all],
+        @report_q[:chart_label_part] => @report_q[:chart_part]}, colors: ['#DFA584', "#999"])
   .row
     .column.large-12
       %table
