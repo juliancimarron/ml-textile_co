@@ -19,12 +19,18 @@ RSpec.shared_context 'create_timelogs' do
       if has_days_skipped
         current_date += 1.day and next if dist_rand([false,true], [95,100], false)
       end
+
+      arrive_sec = (9.hours + dist_rand(d_values, d_weights, true).seconds)
+      leave_sec = (18.hours + dist_rand(d_values, d_weights, true).seconds)
       
       timelog_attributes = {
         employee_id: employee.id,
         log_date: current_date,
-        arrive_sec: (9.hours + dist_rand(d_values, d_weights, true).seconds),
-        leave_sec: (18.hours + dist_rand(d_values, d_weights, true).seconds)
+        arrive_sec: arrive_sec,
+        leave_sec: leave_sec,
+        claim_arrive_sec: arrive_sec - 30.minutes,
+        claim_leave_sec: leave_sec + 30.minutes,
+        claim_status: 'pending'
       }
       timelogs << timelog_attributes
       current_date += 1.day
