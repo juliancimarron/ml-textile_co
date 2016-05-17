@@ -43,5 +43,12 @@ RSpec.describe TimelogsController, type: :routing do
       expect(:get => "/reported_errors").to route_to("timelogs#reported_errors")
     end
 
+    it "routes to #reported_error_update" do
+      expect(:put => "/timelogs/reported_error_update/1").to route_to("timelogs#reported_error_update", id: '1')
+    end
+
+    it "routes to #reported_error_update" do
+      expect(:patch => "/timelogs/reported_error_update/1").to route_to("timelogs#reported_error_update", id: '1')
+    end
   end
 end
