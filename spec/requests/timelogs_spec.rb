@@ -8,6 +8,7 @@ RSpec.describe "Timelogs", type: :request do
   Warden.test_mode!
 
   fixtures :employees
+  fixtures :timelogs
 
   let(:reg_employee) { employees(:john) }
   let(:admin_employee) { employees(:julian) }
@@ -64,7 +65,22 @@ RSpec.describe "Timelogs", type: :request do
     end  
   end
 
-  context 'GET /update' do 
+  context 'PUT /update' do 
+    it "returns 302 as regular employee" do
+      put timelog_path(reg_employee), {timelog: timelog_valid_attributes}
+      expect(response).to have_http_status(:found)
+      expect(response).to redirect_to(timelog_path(reg_employee))
+    end
+
+    it "returns 302 as admin employee" do
+      login_admin
+      put timelog_path(admin_employee), {timelog: timelog_valid_attributes}
+      expect(response).to have_http_status(:found)
+      expect(response).to redirect_to(timelog_path(admin_employee))
+    end  
+  end
+
+  context 'PATCH /update' do 
     it "returns 302 as regular employee" do
       patch timelog_path(reg_employee), {timelog: timelog_valid_attributes}
       expect(response).to have_http_status(:found)
@@ -76,34 +92,6 @@ RSpec.describe "Timelogs", type: :request do
       patch timelog_path(admin_employee), {timelog: timelog_valid_attributes}
       expect(response).to have_http_status(:found)
       expect(response).to redirect_to(timelog_path(admin_employee))
-    end  
-  end
-
-  context 'GET /assistance' do 
-    it "returns 302 as regular employee" do
-      get assistance_path
-      expect(response).to have_http_status(:found)
-      expect(response).to redirect_to(timelogs_path)
-    end
-
-    it "returns 200 as admin employee" do
-      login_admin
-      get assistance_path
-      expect(response).to have_http_status(:success)
-    end  
-  end
-
-  context 'GET /assistance' do 
-    it "returns 200 as regular employee" do
-      get reported_errors_path
-      expect(response).to have_http_status(:found)
-      expect(response).to redirect_to(timelogs_path)
-    end
-
-    it "returns 200 as admin employee" do
-      login_admin
-      get reported_errors_path
-      expect(response).to have_http_status(:success)
     end  
   end
 
