@@ -34,9 +34,9 @@ RSpec.describe TimelogsController, type: :controller do
       sign_in reg_employee
       today = Time.now.to_date
       Timelog.delete_all
-      create_timelogs (today - 9.months), (today - 8.months), reg_employee
-      create_timelogs (today - 3.months), (today - 2.month), reg_employee
-      create_timelogs (today + 3.months), (today + 5.months), reg_employee
+      create_timelogs (today - 9.months), (today - 8.months), reg_employee, true
+      create_timelogs (today - 3.months), (today - 2.month), reg_employee, true
+      create_timelogs (today + 3.months), (today + 5.months), reg_employee, true
     end
 
     it "assigns last 5 months of employee's timelogs to @timelogs" do
@@ -311,7 +311,7 @@ RSpec.describe TimelogsController, type: :controller do
       Timelog.delete_all
 
       Employee.all.each do |employee|
-        create_timelogs(start_date - 2.months, end_date, employee)
+        create_timelogs(start_date - 2.months, end_date, employee, true)
       end
 
       Timelog.all.each do |timelog|
