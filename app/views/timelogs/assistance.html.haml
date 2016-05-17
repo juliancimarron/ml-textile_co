@@ -22,7 +22,7 @@
             = date_field_tag :end_date, @report_q[:end_date]
       .row
         .column.large-12.text-center
-          = submit_tag 'Send', class: 'button text-center'
+          = submit_tag 'Send Parameters', class: 'button text-center'
     .column.large-7
       = pie_chart({@report_q[:chart_label_all] => @report_q[:chart_all],
         @report_q[:chart_label_part] => @report_q[:chart_part]}, colors: ['#DFA584', "#999"])
