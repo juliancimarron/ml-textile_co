@@ -83,7 +83,7 @@ RSpec.describe "Timelogs", type: :request do
     it "returns 302 as regular employee" do
       get assistance_path
       expect(response).to have_http_status(:found)
-      expect(response).to redirect_to(timelogs_url)
+      expect(response).to redirect_to(timelogs_path)
     end
 
     it "returns 200 as admin employee" do
@@ -97,7 +97,7 @@ RSpec.describe "Timelogs", type: :request do
     it "returns 200 as regular employee" do
       get reported_errors_path
       expect(response).to have_http_status(:found)
-      expect(response).to redirect_to(timelogs_url)
+      expect(response).to redirect_to(timelogs_path)
     end
 
     it "returns 200 as admin employee" do

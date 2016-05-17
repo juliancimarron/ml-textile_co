@@ -111,7 +111,7 @@ RSpec.describe TimelogsController, type: :controller do
       valid_timelog.update claim_status: 'approved'
       valid_timelog.reload
       get :edit, {:id => valid_timelog.id}
-      expect(response).to redirect_to timelogs_url
+      expect(response).to redirect_to timelogs_path
     end
 
     it "assigns the string for the corresponding pay period as @period" do
