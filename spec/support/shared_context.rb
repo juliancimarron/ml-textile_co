@@ -8,49 +8,28 @@ RSpec.shared_context 'create_timelogs' do
     return has_sign ? [1,-1].sample * value : value
   end
 
-  def create_timelogs(date_start, date_end, employee) 
+  def create_timelogs(start_date, end_date, employee, has_days_skipped) 
     d_values = [0, rand(1..30).minutes]
     d_weights = [90, 100]
-    ActiveRecord::Base.transaction do
-      date = date_start - 1.day
-      while date <= date_end
-        next if dist_rand([false,true], [95,100], false)
-        date += 1.day
-        next if [6,7].include? date.cwday  # skip Weekends
-        Timelog.create(
-          employee_id: employee.id,
-          log_date: date,
-          arrive_sec: 9.hours + dist_rand(d_values, d_weights, true).seconds,
-          leave_sec: 18.hours + dist_rand(d_values, d_weights, true).seconds
-        )
+    timelogs = []
+
+    current_date = start_date
+    while current_date <= end_date
+      current_date += 1.day and next if [6,7].include? current_date.cwday  # skip Weekends
+      if has_days_skipped
+        current_date += 1.day and next if dist_rand([false,true], [95,100], false)
       end
+      
+      timelog_attributes = {
+        employee_id: employee.id,
+        log_date: current_date,
+        arrive_sec: (9.hours + dist_rand(d_values, d_weights, true).seconds),
+        leave_sec: (18.hours + dist_rand(d_values, d_weights, true).seconds)
+      }
+      timelogs << timelog_attributes
+      current_date += 1.day
     end
-  end
-
-  def create_timesheets(range_start_date, range_end_date, employee) 
-    start_date = range_start_date
-    end_date = Date.new(range_start_date.year, range_start_date.month, -1)
-    while start_date <= range_end_date
-      seconds = Timelog.where(
-        'employee_id = ? AND log_date >= ? AND log_date <= ?',
-        employee.id, start_date, end_date
-      ).map{|timelog| 
-        arrive = Timelog.get_correct_moment(:arrive, timelog)
-        leave = Timelog.get_correct_moment(:arrive, timelog)
-        return (leave.nil? or arrive.nil?) ? 0 : leave - arrive
-      }.inject(:+).to_i
-
-      Timesheet.create(
-        employee: employee,
-        period_start_date: start_date,
-        period_end_date: end_date,
-        logged_hrs: Util.seconds_to_hrs_min(seconds)[:hours],
-        logged_min: Util.seconds_to_hrs_min(seconds)[:minutes],
-        pay_date: end_date + 7.days
-      )
-    end
-    start_date = Date.new(start_date.year, start_date.month + 1, 1)
-    end_date = Date.new(start_date.year, start_date.month, -1)
+    Timelog.create timelogs
   end
 
   def month_workdays(year, month) 
