@@ -26,13 +26,21 @@ module TimelogsHelper
   def reported_error_action(timelog) 
     case timelog.claim_status
     when 'pending'
-      approve = link_to 'Approve', '#'
-      decline = link_to 'Decline', '#'
+      approve = link_to 'Approve', 
+        admin_timelogs_reported_error_path(timelog.id, claim_status: 'approved'),
+        method: :put
+      decline = link_to 'Decline', 
+        admin_timelogs_reported_error_path(timelog.id, claim_status: 'declined'),
+        method: :put
       return "#{approve} / #{decline}".html_safe
     when 'approved'
-      (link_to 'Change to Decline', '#')
+      link_to 'Change to Decline', 
+        admin_timelogs_reported_error_path(timelog.id, claim_status: 'declined'),
+        method: :put
     when 'declined'
-      link_to 'Change to Approve', '#'
+      link_to 'Change to Approve', 
+        admin_timelogs_reported_error_path(timelog.id, claim_status: 'approved'),
+        method: :put
     end
   end
 
