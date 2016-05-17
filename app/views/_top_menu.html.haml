@@ -8,15 +8,15 @@
         - if current_employee.admin?
           .top-bar-left.admin-menu
             %ul.menu
-              %li{class: class_by_fullpath('active', fullpath, 'assistance')}
-                %a{href: assistance_path} Assistance
-              %li{class: class_by_fullpath('active', fullpath, 'reported_errors')}
-                %a{:href => reported_errors_path} Timesheet Errors
+              %li{class: class_by_fullpath('active', fullpath, 'admin/reports/assistance', true)}
+                %a{href: admin_reports_assistance_path} Assistance
+              %li{class: class_by_fullpath('active', fullpath, 'admin/timelogs/reported_errors', true)}
+                %a{:href => admin_timelogs_reported_errors_path} Timesheet Errors
         .top-bar-right
           %ul.menu
-            %li{class: class_by_fullpath('active', fullpath, ['timelogs', 'timelog_errors'])}
+            %li{class: class_by_fullpath('active', fullpath, 'timelogs', true)}
               = link_to 'My Timesheets', timelogs_path
-            %li{class: class_by_fullpath('active', fullpath, 'employees')}
+            %li{class: class_by_fullpath('active', fullpath, 'employees', true)}
               %a{href: employee_path(current_employee)} My Profile
             %li
               = link_to 'Sign Out', destroy_employee_session_path, method: :delete
