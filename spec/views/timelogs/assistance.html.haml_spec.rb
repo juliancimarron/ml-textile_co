@@ -11,7 +11,7 @@ RSpec.describe "timelogs/assistance", type: :view do
 
   before(:each) do
     sign_in employee
-    create_timelogs(Date.new(2016,3,1), Date.new(2016,5,31), employee)
+    create_timelogs(Date.new(2016,3,1), Date.new(2016,5,31), employee, true)
     @report_q = {type: 'tardies', start_date: '2016-01-01', end_date: '2016-05-31'}
     @timelogs = Timelog.all
   end
