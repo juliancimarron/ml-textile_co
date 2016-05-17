@@ -135,4 +135,28 @@ RSpec.describe TimelogsHelper, type: :helper do
     end
   end
 
+  describe '#tr_report_error_class' do
+    it "returns a class as string if timelog.claims_status = approved" do
+      valid_timelog.claim_status = 'approved'
+      res = tr_report_error_class(valid_timelog)
+      expect(res).to be_a String
+    end
+
+    it "returns a class as string if timelog.claims_status = declined" do
+      valid_timelog.claim_status = 'declined'
+      res = tr_report_error_class(valid_timelog)
+      expect(res).to be_a String
+    end
+
+    it "returns nil for everything else is timelog.claims_status" do
+      valid_timelog.claim_status = 'hola'
+      res = tr_report_error_class(valid_timelog)
+      expect(res).to be nil
+
+      valid_timelog.claim_status = nil
+      res = tr_report_error_class(valid_timelog)
+      expect(res).to be nil
+    end
+  end
+
 end

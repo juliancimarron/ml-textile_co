@@ -44,4 +44,12 @@ module TimelogsHelper
     end
   end
 
+  def tr_report_error_class(timelog) 
+    klass = nil
+    klass = 'timelog-status-approved' if timelog.claim_status == 'approved'
+    klass = 'timelog-status-declined' if timelog.claim_status == 'declined'
+    
+    return klass
+  end
+
 end
