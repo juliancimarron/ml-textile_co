@@ -37,7 +37,7 @@ RSpec.describe "admin/timelogs/reported_errors", type: :request do
     it "returns 302 as regular employee" do
       put admin_timelogs_reported_error_path(employees(:john).id)
       expect(response).to have_http_status(:found)
-      expect(response).to redirect_to(admin_timelogs_reported_errors_path)
+      expect(response).to redirect_to(timelogs_path)
     end
 
     it "returns 302 as admin employee" do
