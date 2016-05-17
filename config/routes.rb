@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   # resources :departments
   get 'assistance' => 'timelogs#assistance'
-  get 'reported_errors' => 'timelogs#reported_errors'
+  get 'timelogs/reported_errors' => 'timelogs#reported_errors'
   put 'timelogs/reported_error_update/:id' => 'timelogs#reported_error_update'
   patch 'timelogs/reported_error_update/:id' => 'timelogs#reported_error_update'
   
