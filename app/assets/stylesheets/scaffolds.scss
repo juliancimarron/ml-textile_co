@@ -21,3 +21,9 @@ body > footer {
     background: #E4D3BE;
   }
 }
+
+.highlight-hover-row {
+  tr:hover {
+    background: #D4DCE8 !important;
+  }
+}
