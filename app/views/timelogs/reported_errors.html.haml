@@ -1,5 +1,5 @@
 = render './top_menu'
-#timelogs_reported_errors
+#timelogs-reported-errors
   .row
     .column.medium-12
       %h2.page-title.text-center Reported Timesheet Errors
@@ -18,18 +18,14 @@
           %th Claim Status
           %th Actions
         %tbody
-          - if @timelogs.nil? or @timelogs.empty?
-            %tr
-              %td{colspan: 7} There is no data to display.
-          - else
-            - @timelogs.each do |timelog|
-              %tr
-                %td= strftime_as_date(timelog.log_date)
-                %td= timelog.employee.id
-                %td= timelog.employee.full_name
-                %td= moment_as_time_for_edit(timelog.arrive_sec, nil)
-                %td= moment_as_time_for_edit(timelog.claim_arrive_sec, nil)
-                %td= moment_as_time_for_edit(timelog.leave_sec, nil)
-                %td= moment_as_time_for_edit(timelog.claim_leave_sec, nil)
-                %td= timelog.claim_status.titlecase
-                %td= reported_error_action(timelog)
+          - @timelogs.each do |timelog|
+            %tr{class: tr_report_error_class(timelog)}
+              %td= strftime_as_date(timelog.log_date)
+              %td= timelog.employee.id
+              %td= timelog.employee.full_name
+              %td= moment_as_time_for_edit(timelog.arrive_sec, nil)
+              %td= moment_as_time_for_edit(timelog.claim_arrive_sec, nil)
+              %td= moment_as_time_for_edit(timelog.leave_sec, nil)
+              %td= moment_as_time_for_edit(timelog.claim_leave_sec, nil)
+              %td= timelog.claim_status.titlecase
+              %td= reported_error_action(timelog)

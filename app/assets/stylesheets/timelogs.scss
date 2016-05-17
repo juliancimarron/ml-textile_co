@@ -26,3 +26,18 @@
     }
   }
 }
+
+#timelogs-reported-errors {
+  tr {
+    background: none;
+  }
+
+
+  .timelog-status-approved {
+    background: #EBF2E7;
+  }
+
+  .timelog-status-declined {
+    background: #EDDFDB;
+  }
+}
