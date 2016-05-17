@@ -1,13 +1,17 @@
 require 'rails_helper'
 require 'support/model_attributes'
+require 'support/shared_context'
 
 RSpec.describe Timelog, type: :model do
   include_context 'model_attributes'
+  include_context 'create_timelogs'
 
   fixtures :timelogs
   fixtures :employees
 
   let(:valid_timelog) { Timelog.new timelog_valid_attributes }
+  let(:reg_employee) { employees(:john) }
+  let(:admin_employee) { employees(:julian) }
 
   shared_examples 'less_than_sec_in_day' do |field|
     it "the number of seconds entered is beyond 1 day" do
@@ -236,6 +240,84 @@ RSpec.describe Timelog, type: :model do
   end
 
   describe '.timelogs_for_index_view' do
-    pending
+    let(:john_timelogs_relation) { Timelog.where(id: timelogs(:john).id) }
+
+    describe "returns a structured hash with all pertinent information" do
+      let(:proc_timelogs) do
+        Timelog.timelogs_for_index_view(
+          john_timelogs_relation, 
+          john_timelogs_relation.first.log_date, 
+          john_timelogs_relation.first.log_date)
+      end
+
+      specify { expect(proc_timelogs).to be_a Hash }
+      specify { expect(proc_timelogs[:timelogs]).to be_an Array }
+      specify { expect(proc_timelogs[:timelogs].first).to be_a Hash }
+      specify { expect(proc_timelogs[:timelogs].first.empty?).to be false }
+      specify { expect(proc_timelogs[:time]).to be_a Hash }
+      specify { expect(proc_timelogs[:time][:hours]).to be_a Fixnum }
+      specify { expect(proc_timelogs[:time][:minutes]).to be_a Fixnum }
+    end
+
+    it "processes all timelogs within the data range" do
+      start_date = Date.new 2016,5,16 # Monday
+      end_date = start_date + 8.days # Tuesday of next week
+      no_of_business_days = 7
+
+      Timelog.delete_all
+      test_timelogs = create_timelogs(start_date, end_date, reg_employee, false)
+      test_timelogs = Timelog.where id: test_timelogs.map(&:id) # to an ActiveRecord relation
+      proc_timelogs = Timelog.timelogs_for_index_view(test_timelogs, start_date, end_date)
+
+      expect(proc_timelogs[:timelogs].count).to eq no_of_business_days
+    end
+
+    it "if a timelog is found for a given business day it includes all required attributes" do
+      attributes = %i(log_date arrive_time leave_time hours minutes)
+      proc_timelogs = Timelog.timelogs_for_index_view(
+        john_timelogs_relation, john_timelogs_relation.first.log_date, john_timelogs_relation.first.log_date)
+      for attribute in attributes
+        expect(proc_timelogs[:timelogs].first.key? attribute).to be true
+      end
+    end
+
+    it "if a timelog is not found for a given business day it includes all required attributes" do
+      attributes = %i(log_date arrive_time leave_time status)
+      proc_timelogs = Timelog.timelogs_for_index_view(
+        john_timelogs_relation, Date.new(2016,5,16), Date.new(2016,5,16))
+      for attribute in attributes
+        expect(proc_timelogs[:timelogs].first.key? attribute).to be true
+      end
+    end
+
+    context 'action links' do 
+      let(:test_timelogs) do
+        t = john_timelogs_relation
+        t.first.claim_arrive_sec = nil
+        t.first.claim_leave_sec = nil
+        t.first.claim_status = nil
+        return t
+      end
+
+      it "link Report Error if claim_status = nil" do
+        proc_timelogs = Timelog.timelogs_for_index_view(
+          test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
+        expect(proc_timelogs[:timelogs].first[:action][:text])
+          .to be_a String
+        expect(proc_timelogs[:timelogs].first[:action][:path])
+          .to eq edit_timelog_path(employees(:john))
+      end
+
+      it "link Edit Report if claim_status = pending" do
+        test_timelogs.first.claim_arrive_sec = 9.hours
+        test_timelogs.first.claim_status = 'pending'
+        proc_timelogs = Timelog.timelogs_for_index_view(
+          test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
+        expect(proc_timelogs[:timelogs].first[:action][:text])
+          .to be_a String
+        expect(proc_timelogs[:timelogs].first[:action][:path])
+          .to eq edit_timelog_path(employees(:john))
+      end
+    end
   end
 end

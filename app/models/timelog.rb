@@ -48,22 +48,23 @@ class Timelog < ActiveRecord::Base
     logged_time = {}
     processed_timelogs = []
 
-    date = start_date - 1.day
-    while date <= (end_date - 1.day)
+    current_date = start_date
+    while current_date <= end_date
       hash = {}
-      date += 1.day
-      next if [6,7].include? date.cwday # skip weekends
-      hash[:log_date] = date.strftime '%a, %d-%b-%Y'
+      current_date += 1.day and next if [6,7].include? current_date.cwday # skip weekends
+      hash[:log_date] = current_date.strftime '%a, %d-%b-%Y'
 
-      unless timelog = timelogs.where(log_date: date).first
+      unless timelog = timelogs.where(log_date: current_date).first
         hash[:arrive_time] = 'Missing'
         hash[:leave_time] = 'Missing'
         hash[:status] = 'Missed Day'
       else
         arrive = get_correct_moment(:arrive, timelog)
         leave = get_correct_moment(:leave, timelog)
-        hash[:arrive_time] = arrive ? (Date.parse('2016-06-01') + arrive.seconds).strftime('%l:%M %p') : 'Missing'
-        hash[:leave_time] = leave ? (Date.parse('2016-06-01') + leave.seconds).strftime('%l:%M %p') : 'Missing'
+        hash[:arrive_time] = 
+          arrive ? (timelog.log_date + arrive.seconds).strftime('%l:%M %p') : 'Missing'
+        hash[:leave_time] = 
+          leave ? (timelog.log_date + leave.seconds).strftime('%l:%M %p') : 'Missing'
 
         seconds = (leave.nil? or arrive.nil?) ? 0 : (leave - arrive).to_i
         hash[:hours] = Util.seconds_to_hrs_min(seconds)[:hours]
@@ -79,7 +80,8 @@ class Timelog < ActiveRecord::Base
           hash[:status] = 'Claim Declined'
         end
 
-        # if timesheet.pay_date - 3.days == Time.now.to_date
+        pay_day = 7
+        # if (Time.now.day + pay_day.days).day == pay_day
         if true
           link = self.new.edit_timelog_path(timelog.id)          
           hash[:action] = {}
@@ -93,12 +95,13 @@ class Timelog < ActiveRecord::Base
           end
         end
       end
+
       processed_timelogs << hash
+      current_date += 1.day
     end
 
     logged_time[:hours] = period_minutes / 60
     logged_time[:minutes] = period_minutes - logged_time[:hours] * 60
-
     return {timelogs: processed_timelogs, time: logged_time}
   end
 
