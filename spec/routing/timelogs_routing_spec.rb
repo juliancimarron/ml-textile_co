@@ -36,19 +36,15 @@ RSpec.describe TimelogsController, type: :routing do
     # end
 
     it "routes to #assistance" do
-      expect(:get => "/assistance").to route_to("timelogs#assistance")
+      expect(:get => "admin/reports/assistance").to route_to("timelogs#assistance")
     end
 
     it "routes to #reported_errors" do
-      expect(:get => "/timelogs/reported_errors").to route_to("timelogs#reported_errors")
+      expect(:get => "admin/timelogs/reported_errors").to route_to("timelogs#reported_errors")
     end
 
     it "routes to #reported_error_update" do
-      expect(:put => "/timelogs/reported_error_update/1").to route_to("timelogs#reported_error_update", id: '1')
-    end
-
-    it "routes to #reported_error_update" do
-      expect(:patch => "/timelogs/reported_error_update/1").to route_to("timelogs#reported_error_update", id: '1')
+      expect(:put => "admin/timelogs/reported_errors/1/update").to route_to("timelogs#reported_error_update", id: '1')
     end
   end
 end

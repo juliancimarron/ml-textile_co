@@ -6,11 +6,9 @@ Rails.application.routes.draw do
 
   devise_for :employees
 
-  # resources :departments
-  get 'assistance' => 'timelogs#assistance'
-  get 'timelogs/reported_errors' => 'timelogs#reported_errors'
-  put 'timelogs/reported_error_update/:id' => 'timelogs#reported_error_update'
-  patch 'timelogs/reported_error_update/:id' => 'timelogs#reported_error_update'
+  get 'admin/reports/assistance' => 'timelogs#assistance'
+  get 'admin/timelogs/reported_errors' => 'timelogs#reported_errors'
+  put 'admin/timelogs/reported_errors/:id/update' => 'timelogs#reported_error_update', as: 'admin_timelogs_reported_error'
   
   resources :employees, only: [:show]
   resources :timelogs, only: [:index, :show, :edit, :update]
