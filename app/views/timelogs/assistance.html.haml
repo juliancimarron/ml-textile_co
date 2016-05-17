@@ -4,7 +4,7 @@
     .column.medium-12
       %h2.page-title.text-center Assistance Reports
     .column.large-offset-1.large-4
-      = form_tag assistance_path, method: :get, id: 'report-params'
+      = form_tag admin_reports_assistance_path, method: :get, id: 'report-params'
       %table
         %tr
           %td= label_tag :type, 'Report Type'
