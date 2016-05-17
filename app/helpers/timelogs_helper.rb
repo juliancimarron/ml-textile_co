@@ -28,19 +28,19 @@ module TimelogsHelper
     when 'pending'
       approve = link_to 'Approve', 
         admin_timelogs_reported_error_path(timelog.id, claim_status: 'approved'),
-        method: :put
+        method: :put, id: "#{timelog.id}_approve"
       decline = link_to 'Decline', 
         admin_timelogs_reported_error_path(timelog.id, claim_status: 'declined'),
-        method: :put
+        method: :put, id: "#{timelog.id}_decline"
       return "#{approve} / #{decline}".html_safe
     when 'approved'
       link_to 'Change to Decline', 
         admin_timelogs_reported_error_path(timelog.id, claim_status: 'declined'),
-        method: :put
+        method: :put, id: "#{timelog.id}_change_to_decline"
     when 'declined'
       link_to 'Change to Approve', 
         admin_timelogs_reported_error_path(timelog.id, claim_status: 'approved'),
-        method: :put
+        method: :put, id: "#{timelog.id}_change_to_approve"
     end
   end
 
