@@ -5,7 +5,7 @@ class Timelog < ActiveRecord::Base
 
   CLAIM_STATUS_OPT = %w(pending approved declined)
   REPORT_TYPE_OPT = {tardies: 'Tardies', missed_work: 'Missed Work'}
-  PAYROLL = {pay_day: 20, review_days_before_pay_day: 3}
+  PAYROLL = {pay_day: 7, review_days_before_pay_day: 3}
 
 
   validates :employee_id,
