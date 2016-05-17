@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.feature "EmployeeWorkflows", type: :feature do
-
   fixtures :employees
   fixtures :timelogs
 
@@ -11,6 +10,22 @@ RSpec.feature "EmployeeWorkflows", type: :feature do
     fill_in 'Employee ID', with: admin_emplyee.employee_id
     fill_in 'Password', with: '123456'
     click_button 'Log in'
+  end
+  let(:last_month) do
+    last_month = Time.now.to_date  - 1.month
+    Date.new(last_month.year, last_month.month)
+  end
+
+  before(:each) do
+    new_log_date = Date.new last_month.year, last_month.month
+    new_log_date += 1.day while new_log_date.cwday != 1 # Start on a Monday
+
+    timelogs(:julian).log_date = new_log_date
+    timelogs(:julian).save
+
+    review_days = 3
+    new_payroll = {pay_day: (Time.now.to_date + review_days).day, review_days_before_pay_day: review_days}
+    stub_const('Timelog::PAYROLL', new_payroll)
   end
   
   it "Root redirects to sign in if not logged in" do
@@ -25,7 +40,8 @@ RSpec.feature "EmployeeWorkflows", type: :feature do
     admin_employee_login
     expect(page).to have_text 'Timesheet Review'
     expect(page).to have_css 'th', text: 'Arrival', count: 1
-    expect(page).to have_link 'Edit Report'
+    find('#timelogs_period').find("option[value='#{last_month.to_s}']").select_option
+    click_button 'Submit'
     click_link 'Edit Report'
     expect(page).to have_text 'Report Timesheet Error'
     expect(page).to have_css 'th', text: 'Moment'
@@ -34,9 +50,11 @@ RSpec.feature "EmployeeWorkflows", type: :feature do
     click_button 'Submit'
     expect(page).to have_text 'Reported Timesheet Error'
     expect(page).to have_text 'Report successfully submitted'
-    expect(page).to have_text 'Claimed by Employee'
+    expect(page).to have_css 'th', text: 'Claimed by Employee'
     expect(page).to have_text claimed_time
     click_link 'Timesheets'
+    find('#timelogs_period').find("option[value='#{last_month.to_s}']").select_option
+    click_button 'Submit'
     expect(page).to have_text 'Timesheet Review'
     expect(page).to have_text claimed_time
   end
