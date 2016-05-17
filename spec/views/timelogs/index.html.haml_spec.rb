@@ -24,7 +24,7 @@ RSpec.describe "timelogs/index", type: :view do
     before(:example) do
       sign_in employee
 
-      create_timelogs(start_date, end_date, employee)
+      create_timelogs(start_date, end_date, employee, true)
 
       @timelogs = Timelog.all
       @periods = {collection: [['Period 1 Title'], ['2016-05-01']], last: '2016-05-01'}
