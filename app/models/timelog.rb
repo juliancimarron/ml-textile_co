@@ -5,6 +5,7 @@ class Timelog < ActiveRecord::Base
 
   CLAIM_STATUS_OPT = %w(pending approved declined)
   REPORT_TYPE_OPT = {tardies: 'Tardies', missed_work: 'Missed Work'}
+  PAYROLL = {pay_day: 20, review_days_before_pay_day: 3}
 
 
   validates :employee_id,
@@ -80,9 +81,8 @@ class Timelog < ActiveRecord::Base
           hash[:status] = 'Claim Declined'
         end
 
-        pay_day = 7
-        # if (Time.now.day + pay_day.days).day == pay_day
-        if true
+        if Time.now.to_date + PAYROLL[:review_days_before_pay_day].days == self.get_pay_date(timelog)
+        # if true
           link = self.new.edit_timelog_path(timelog.id)          
           hash[:action] = {}
           case timelog.claim_status
@@ -103,6 +103,10 @@ class Timelog < ActiveRecord::Base
     logged_time[:hours] = period_minutes / 60
     logged_time[:minutes] = period_minutes - logged_time[:hours] * 60
     return {timelogs: processed_timelogs, time: logged_time}
+  end
+
+  def self.get_pay_date(timelog) 
+    Date.new(timelog.log_date.year, timelog.log_date.month, -1) + PAYROLL[:pay_day].days
   end
 
   private

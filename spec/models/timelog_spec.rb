@@ -292,31 +292,58 @@ RSpec.describe Timelog, type: :model do
 
     context 'action links' do 
       let(:test_timelogs) do
-        t = john_timelogs_relation
-        t.first.claim_arrive_sec = nil
-        t.first.claim_leave_sec = nil
-        t.first.claim_status = nil
-        return t
+        last_month = Time.now - 1.month
+        last_month = Date.new last_month.year, last_month.month
+        last_month += 1.day while last_month.cwday != 1 # make it start on a Monday
+        create_timelogs(last_month, last_month, reg_employee, false)
+        Timelog.all.each do |t|
+          t.claim_arrive_sec = nil
+          t.claim_leave_sec = nil
+          t.claim_status = nil
+          t.save
+        end
+        Timelog.all
       end
 
-      it "link Report Error if claim_status = nil" do
-        proc_timelogs = Timelog.timelogs_for_index_view(
-          test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
-        expect(proc_timelogs[:timelogs].first[:action][:text])
-          .to be_a String
-        expect(proc_timelogs[:timelogs].first[:action][:path])
-          .to eq edit_timelog_path(employees(:john))
-      end
+      context "it's review day for previous period's timelogs" do 
+        let(:review_days) { 3 }
 
-      it "link Edit Report if claim_status = pending" do
-        test_timelogs.first.claim_arrive_sec = 9.hours
-        test_timelogs.first.claim_status = 'pending'
-        proc_timelogs = Timelog.timelogs_for_index_view(
-          test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
-        expect(proc_timelogs[:timelogs].first[:action][:text])
-          .to be_a String
-        expect(proc_timelogs[:timelogs].first[:action][:path])
-          .to eq edit_timelog_path(employees(:john))
+        before(:each) do
+          Timelog.delete_all
+          new_payroll = {pay_day: (Time.now.to_date + review_days).day, review_days_before_pay_day: review_days}
+          stub_const('Timelog::PAYROLL', new_payroll)
+        end
+
+        it "link Report Error if claim_status = nil" do
+          proc_timelogs = Timelog.timelogs_for_index_view(
+            test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
+          expect(proc_timelogs[:timelogs].first[:action][:text])
+            .to be_a String
+          expect(proc_timelogs[:timelogs].first[:action][:path])
+            .to eq edit_timelog_path(Timelog.first.id)
+        end
+
+        it "link Edit Report if claim_status = pending" do
+          test_timelogs.first.claim_arrive_sec = 9.hours
+          test_timelogs.first.claim_status = 'pending'
+          proc_timelogs = Timelog.timelogs_for_index_view(
+            test_timelogs, test_timelogs.first.log_date, test_timelogs.first.log_date)
+          expect(proc_timelogs[:timelogs].first[:action][:text])
+            .to be_a String
+          expect(proc_timelogs[:timelogs].first[:action][:path])
+            .to eq edit_timelog_path(Timelog.first.id)
+        end
+      end
+        
+      context 'outside the review date' do 
+        it "doesn't return anything" do
+          timelogs = Timelog.where(id: timelogs(:john))
+          timelogs.first.claim_arrive_sec = 9.hours
+          timelogs.first.claim_status = 'pending'
+          proc_timelogs = Timelog.timelogs_for_index_view(
+            timelogs, timelogs.first.log_date, timelogs.first.log_date)
+          expect(proc_timelogs[:timelogs].first.key? :action).to be false
+        end
       end
     end
   end
