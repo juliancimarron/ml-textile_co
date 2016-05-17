@@ -133,7 +133,7 @@ class TimelogsController < ApplicationController
     redirect_to assistance_url, notice: notice
   end
 
-  # GET /timelogs/assistance
+  # GET /reported_errors
   def reported_errors 
     start_date = Time.now.to_date - 3.months
     end_date = Time.now.to_date
@@ -142,6 +142,22 @@ class TimelogsController < ApplicationController
       .where('(claim_status = ?) OR (log_date >= ? AND log_date <= ? AND claim_status IN (?))',
         'pending', start_date, end_date, ['approved', 'declined'])
       .order(log_date: :asc)
+  end
+
+  # PUT /reported_errors/:id/udpate
+  def reported_error_update 
+    possible_statuses = %w(pending approved declined)
+    timelog = Timelog.where(id: params[:id]).first
+    new_status = params[:claim_status]
+
+    timelog = timelog.claim_status.nil? ? nil : timelog
+    new_status = possible_statuses.include?(new_status) ? new_status : nil
+    redirect_to(admin_timelogs_reported_errors_path) and return if timelog.nil? or new_status.nil?
+
+    timelog.update claim_status: new_status
+    redirect_to admin_timelogs_reported_errors_path, notice: "Timelog successfully updated."
+  rescue Exception => e
+    redirect_to admin_timelogs_reported_errors_path, alert: "There was an error processig your request."
   end
 
   private

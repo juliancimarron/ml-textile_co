@@ -357,4 +357,66 @@ RSpec.describe TimelogsController, type: :controller do
     end
   end
 
+  describe 'PUT #reported_error_update' do
+    let(:valid_timelog) { timelogs(:john) }
+
+    context 'valid attributes' do 
+      it "updates claim_status as long as it's not nil" do
+        old_status = 'pending'
+        new_status = 'approved'
+        timelog = Timelog.create(
+          employee: reg_employee, 
+          log_date: Time.now.to_date + 1.day, 
+          arrive_sec: 9.hours,
+          claim_arrive_sec: 8.hours,
+          claim_status: old_status
+        )
+        put :reported_error_update, {id: timelog.id, claim_status: new_status}
+        timelog.reload
+        expect(timelog.claim_status).to eq new_status
+
+        new_status = 'declined'
+        timelog.claim_status = new_status
+        timelog.save
+        expect(timelog.claim_status).to eq new_status
+
+        new_status = 'pending'
+        timelog.claim_status = new_status
+        timelog.save
+        expect(timelog.claim_status).to eq new_status
+      end
+    end
+
+    context 'invalid attributes' do 
+      it "will not make any updates if claim_status == nil originally" do
+        old_status = nil
+        new_status = 'approved'
+        timelog = Timelog.create(
+          employee: reg_employee, 
+          log_date: Time.now.to_date + 1.day, 
+          arrive_sec: 9.hours,
+          claim_status: old_status
+        )
+        put :reported_error_update, {id: timelog.id, claim_status: new_status}
+        timelog.reload
+        expect(timelog.claim_status).to eq old_status
+        expect(request).to redirect_to admin_timelogs_reported_errors_path
+      end
+
+      it "does nothing if no attributes are sent" do
+        old_status = nil
+        timelog = Timelog.create(
+          employee: reg_employee, 
+          log_date: Time.now.to_date + 1.day, 
+          arrive_sec: 9.hours,
+          claim_status: old_status
+        )
+        put :reported_error_update, {id: timelog.id}
+        timelog.reload
+        expect(timelog.claim_status).to eq old_status
+        expect(request).to redirect_to admin_timelogs_reported_errors_path
+      end
+    end
+  end
+
 end
